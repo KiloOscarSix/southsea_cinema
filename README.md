@@ -97,30 +97,25 @@ The app should open in your browser and show the Southsea Cinema starter home pa
 
 The coursework should be designed mobile-first.
 
-In Chrome or Edge:
-
-1. Right-click the page and choose **Inspect**
-2. Click the **Toggle device toolbar** button, highlighted below:
+To view it in mobile view in Chrome or Edge, open developer tools (right-click the page and choose **Inspect**, or press F12), then click the **Toggle device toolbar** button:
 
 ![Toggle device toolbar button in Chrome DevTools](images/step5_open_devtools.png)
 
-3. Choose a phone-sized device preset from the dropdown menu:
+Finally, choose a phone-sized device preset from the dropdown menu:
 
 ![Selecting a phone-sized device preset](images/step5_mobile_view.png)
 
 ## Marking Criteria
 
-This repository is the starting point for your Southsea Cinema coursework, which is **Item 1** of your module and worth **50% of the overall module mark**. Item 1 is assessed as a portfolio: you build the app in five stages and demonstrate each stage to a member of staff during your timetabled practical session.
+This repository is the starting point for your Southsea Cinema coursework, which is Item 1 of your module and worth 50% of the overall module mark. Item 1 is assessed as a portfolio of five live in-person demos during your timetabled practical session. You build the app progressively by completing the exercises at the end of the weekly worksheets.
 
-**Demo 1** is the union of the Worksheet 1 and Worksheet 2 exercises: fork and run this app, then build a movie listing page in `lib/views/movie_listing.dart` for a film of your choice, with a title and description, a ticket quantity dropdown, and a booking button. Follow the exercises in [Worksheet 1](https://manighahrmani.github.io/sandwich_shop/worksheet-1.html) and [Worksheet 2](https://manighahrmani.github.io/sandwich_shop/worksheet-2.html).
+Every two worksheets prepare you for one demo (for example, Worksheets 1 and 2 prepare you for Demo 1). Only your best four demo marks count towards Item 1, with each counted demo worth 25% of Item 1 (12.5% of the overall module mark). Each demo is marked on functionality (9%), code quality (8%), and your understanding through two questions about your own code (8%).
 
-There are five demos, but only your best four count towards Item 1, so you can miss (or do poorly on) one without harming your mark. Each demo is worth 25% of Item 1 (12.5% of the module) and is marked on three things:
+Assessment takes place across five two-week demo windows (Weeks 1 and 2, Weeks 3 and 4, Weeks 5 and 6, Weeks 7 and 8, and Weeks 9 and 10). Three rules apply:
 
-- Functionality (9% of Item 1): what your app can do by this point in the schedule
-- Quality (8% of Item 1): how well your code is organised
-- Understanding (8% of Item 1): whether you can answer two questions about your own work
-
-Demos take place in your timetabled practical session, and only one demo can happen per window. If you miss a demo, you demonstrate the missed stage at the next window. Missing two demos caps Item 1 at 75% (37.5% of the module), and so on.
+- You can perform at most one demo in any demo window.
+- Demos must be completed in order. You cannot skip ahead to a later demo if you have missed an earlier one, because each stage builds on the previous codebase.
+- Missing one demo window carries no mark penalty because only your best four demo marks count. Missing two or more windows reduces the number of demos you can complete.
 
 For the full mark breakdown, the missed-demo rules, and how Extenuating Circumstances affect Item 1, read the [Assessment Guide](https://portdotacdotuk-my.sharepoint.com/:w:/g/personal/mani_ghahremani_port_ac_uk/IQC9nZoNwb2jT40MnFQPZWVvAVdTK2PGBmZ8jPff30RRyPc). The full demo dates and requirements are listed on the [Flutter Course homepage](https://manighahrmani.github.io/sandwich_shop/).
 
