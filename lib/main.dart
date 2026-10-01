@@ -22,6 +22,30 @@ class SouthseaCinemaApp extends StatelessWidget {
           primary: cinemaBrand,
           surface: cinemaSurface,
         ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: cinemaBrand,
+            foregroundColor: cinemaFontWhite,
+            textStyle: cinemaButtonStyle,
+            shape: const RoundedRectangleBorder(),
+          ),
+        ),
+        snackBarTheme: const SnackBarThemeData(
+          backgroundColor: cinemaSurface,
+          contentTextStyle: cinemaBodyStyle,
+        ),
+        inputDecorationTheme: const InputDecorationTheme(
+          labelStyle: TextStyle(color: cinemaBrand),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: cinemaBrand),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: cinemaBrand),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: cinemaBrandLight, width: 2),
+          ),
+        ),
       ),
       initialRoute: '/',
       routes: {

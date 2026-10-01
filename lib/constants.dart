@@ -18,14 +18,25 @@ const TextStyle cinemaHeaderStyle = TextStyle(
 );
 
 const TextStyle cinemaTitleStyle = TextStyle(
-  color: cinemaFontWhite,
+  color: cinemaBrand,
   fontSize: 24,
   fontWeight: FontWeight.bold,
 );
 
+const TextStyle cinemaRatingStyle = TextStyle(
+  color: cinemaFontWhite,
+  fontSize: 12,
+);
+
 const TextStyle cinemaBodyStyle = TextStyle(
-  color: cinemaFontMuted,
-  fontSize: 14,
+  color: cinemaFontWhite,
+  fontSize: 15,
+  height: 1.6,
+);
+
+const TextStyle cinemaButtonStyle = TextStyle(
+  fontSize: 15,
+  fontWeight: FontWeight.w300,
 );
 
 const double cinemaSpacingSmall = 8;

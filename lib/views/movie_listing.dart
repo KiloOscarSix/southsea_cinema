@@ -51,6 +51,7 @@ class _MovieListingState extends State<MovieListing> {
             DropdownMenu<int>(
               initialSelection: _quantity,
               label: const Text('Quantity'),
+              textStyle: cinemaBodyStyle,
               dropdownMenuEntries: [
                 for (var i = 1; i <= _maxTicketsPerOrder; i++)
                   DropdownMenuEntry<int>(value: i, label: '$i'),
@@ -65,7 +66,7 @@ class _MovieListingState extends State<MovieListing> {
             ),
             FilledButton(
               onPressed: _addToOrder,
-              child: const Text('Add to order'),
+              child: Text('Add to order'.toUpperCase()),
             ),
           ],
         ),
@@ -100,13 +101,14 @@ class _FilmHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       spacing: cinemaSpacingSmall,
       children: [
-        Text('$_filmTitle ($_filmYear)', style: cinemaTitleStyle),
-        Text('($_filmRating)', style: cinemaBodyStyle),
+        Text('${_filmTitle.toUpperCase()} ($_filmYear)',
+            style: cinemaTitleStyle),
+        const Text('($_filmRating)', style: cinemaRatingStyle),
       ],
     );
   }
