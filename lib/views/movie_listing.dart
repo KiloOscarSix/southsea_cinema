@@ -8,8 +8,15 @@ const String _filmRating = 'PG';
 const String _filmDescription =
     "The dashing, mysterious Count Dracula (Bela Lugosi) travels to London and takes up residence in an old castle. Soon he begins to wreak havoc, sucking the blood of young women and turning them into vampires. Van Helsing is enlisted to put a stop to the count's never-ending bloodlust.";
 
-class MovieListing extends StatelessWidget {
+class MovieListing extends StatefulWidget {
   const MovieListing({super.key});
+
+  @override
+  State<MovieListing> createState() => _MovieListingState();
+}
+
+class _MovieListingState extends State<MovieListing> {
+  int _quantity = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +28,29 @@ class MovieListing extends StatelessWidget {
         elevation: 0,
       ),
       drawer: const NavDrawer(),
-      body: const Padding(
-        padding: EdgeInsets.all(cinemaSpacingMedium),
+      body: Padding(
+        padding: const EdgeInsets.all(cinemaSpacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: cinemaSpacingMedium,
-          children: [_FilmDetailsCard()],
+          children: [
+            const _FilmDetailsCard(),
+            DropdownMenu<int>(
+              initialSelection: _quantity,
+              label: const Text('Quantity'),
+              dropdownMenuEntries: [
+                for (var i = 1; i <= 5; i++)
+                  DropdownMenuEntry<int>(value: i, label: '$i'),
+              ],
+              onSelected: (value) {
+                if (value != null) {
+                  setState(() {
+                    _quantity = value;
+                  });
+                }
+              },
+            ),
+          ],
         ),
       ),
     );
