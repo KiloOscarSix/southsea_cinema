@@ -27,3 +27,7 @@ const TextStyle cinemaBodyStyle = TextStyle(
   color: cinemaFontMuted,
   fontSize: 14,
 );
+
+const double cinemaSpacingSmall = 8;
+const double cinemaSpacingMedium = 16;
+const double cinemaCornerRadius = 8;
