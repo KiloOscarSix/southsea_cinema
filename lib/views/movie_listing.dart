@@ -9,6 +9,8 @@ const String _filmDescription =
     "The dashing, mysterious Count Dracula (Bela Lugosi) travels to London and takes up residence in an old castle. Soon he begins to wreak havoc, sucking the blood of young women and turning them into vampires. Van Helsing is enlisted to put a stop to the count's never-ending bloodlust.";
 
 const int _maxTicketsPerOrder = 5;
+const double _wideLayoutBreakpoint = 600;
+const double _wideOrderPanelWidth = 240;
 
 class MovieListing extends StatefulWidget {
   const MovieListing({super.key});
@@ -41,36 +43,73 @@ class _MovieListingState extends State<MovieListing> {
         elevation: 0,
       ),
       drawer: const NavDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(cinemaSpacingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: cinemaSpacingMedium,
-          children: [
-            const _FilmDetailsCard(),
-            DropdownMenu<int>(
-              initialSelection: _quantity,
-              label: const Text('Quantity'),
-              textStyle: cinemaBodyStyle,
-              dropdownMenuEntries: [
-                for (var i = 1; i <= _maxTicketsPerOrder; i++)
-                  DropdownMenuEntry<int>(value: i, label: '$i'),
-              ],
-              onSelected: (value) {
-                if (value != null) {
-                  setState(() {
-                    _quantity = value;
-                  });
-                }
-              },
-            ),
-            FilledButton(
-              onPressed: _addToOrder,
-              child: Text('Add to order'.toUpperCase()),
-            ),
-          ],
-        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth > _wideLayoutBreakpoint;
+          final orderPanel = _OrderPanel(
+            quantity: _quantity,
+            onQuantityChanged: (value) => setState(() => _quantity = value),
+            onAddToOrder: _addToOrder,
+          );
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(cinemaSpacingMedium),
+            child: isWide
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: cinemaSpacingMedium,
+                    children: [
+                      const Expanded(child: _FilmDetailsCard()),
+                      SizedBox(width: _wideOrderPanelWidth, child: orderPanel),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: cinemaSpacingMedium,
+                    children: [const _FilmDetailsCard(), orderPanel],
+                  ),
+          );
+        },
       ),
+    );
+  }
+}
+
+class _OrderPanel extends StatelessWidget {
+  const _OrderPanel({
+    required this.quantity,
+    required this.onQuantityChanged,
+    required this.onAddToOrder,
+  });
+
+  final int quantity;
+  final ValueChanged<int> onQuantityChanged;
+  final VoidCallback onAddToOrder;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: cinemaSpacingMedium,
+      children: [
+        DropdownMenu<int>(
+          expandedInsets: EdgeInsets.zero,
+          initialSelection: quantity,
+          label: const Text('Quantity'),
+          textStyle: cinemaBodyStyle,
+          dropdownMenuEntries: [
+            for (var i = 1; i <= _maxTicketsPerOrder; i++)
+              DropdownMenuEntry<int>(value: i, label: '$i'),
+          ],
+          onSelected: (value) {
+            if (value != null) onQuantityChanged(value);
+          },
+        ),
+        FilledButton(
+          onPressed: onAddToOrder,
+          child: Text('Add to order'.toUpperCase()),
+        ),
+      ],
     );
   }
 }
