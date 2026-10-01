@@ -20,6 +20,17 @@ class MovieListing extends StatefulWidget {
 class _MovieListingState extends State<MovieListing> {
   int _quantity = 1;
 
+  void _addToOrder() {
+    final noun = _quantity == 1 ? 'ticket' : 'tickets';
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('$_quantity $noun for $_filmTitle added to your order'),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,6 +62,10 @@ class _MovieListingState extends State<MovieListing> {
                   });
                 }
               },
+            ),
+            FilledButton(
+              onPressed: _addToOrder,
+              child: const Text('Add to order'),
             ),
           ],
         ),
