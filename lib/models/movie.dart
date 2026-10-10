@@ -8,6 +8,7 @@ class Movie {
   // Duration in minutes
   final int duration;
   final String rating;
+  final String screeningTime;
 
   const Movie(
       {required this.id,
@@ -17,6 +18,6 @@ class Movie {
       required this.imagePath,
       required this.genre,
       required this.duration,
-      required this.rating});
+      required this.rating,
+      required this.screeningTime});
 }
-

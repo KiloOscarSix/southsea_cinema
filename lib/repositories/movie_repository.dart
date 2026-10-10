@@ -12,7 +12,8 @@ class MovieRepository {
           imagePath: "assets/images/dracula.jpg",
           genre: "Dark Fantasy",
           duration: 74,
-          rating: "PG"),
+          rating: "PG",
+          screeningTime: "19:30"),
       Movie(
           id: "phantom-of-the-opera",
           title: "The Phantom of the Opera",
@@ -22,7 +23,8 @@ class MovieRepository {
           imagePath: "assets/images/phantom-of-the-opera.jpg",
           genre: "Horror",
           duration: 101,
-          rating: "12A")
+          rating: "12A",
+          screeningTime: "21:00")
     ];
   }
 }
