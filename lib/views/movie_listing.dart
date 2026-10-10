@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:southsea_cinema/constants.dart';
+import 'package:southsea_cinema/models/movie.dart';
 import 'package:southsea_cinema/widgets/nav_drawer.dart';
-
-const String _filmTitle = 'Dracula';
-const String _filmYear = '1931';
-const String _filmRating = 'PG';
-const String _filmDescription =
-    "The dashing, mysterious Count Dracula (Bela Lugosi) travels to London and takes up residence in an old castle. Soon he begins to wreak havoc, sucking the blood of young women and turning them into vampires. Van Helsing is enlisted to put a stop to the count's never-ending bloodlust.";
 
 const int _maxTicketsPerOrder = 5;
 const double _wideLayoutBreakpoint = 600;
 const double _wideOrderPanelWidth = 240;
+const double _posterWidth = 100;
+const double _posterHeight = 150;
 
 class MovieListing extends StatefulWidget {
-  const MovieListing({super.key});
+  const MovieListing({super.key, required this.movie});
+
+  final Movie movie;
 
   @override
   State<MovieListing> createState() => _MovieListingState();
@@ -28,7 +27,7 @@ class _MovieListingState extends State<MovieListing> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('$_quantity $noun for $_filmTitle added to your order'),
+          content: Text('$_quantity $noun for ${widget.movie.title} added to your order'),
         ),
       );
   }
@@ -59,14 +58,14 @@ class _MovieListingState extends State<MovieListing> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: cinemaSpacingMedium,
                     children: [
-                      const Expanded(child: _FilmDetailsCard()),
+                      Expanded(child: _FilmDetailsCard(movie: widget.movie)),
                       SizedBox(width: _wideOrderPanelWidth, child: orderPanel),
                     ],
                   )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     spacing: cinemaSpacingMedium,
-                    children: [const _FilmDetailsCard(), orderPanel],
+                    children: [_FilmDetailsCard(movie: widget.movie), orderPanel],
                   ),
           );
         },
@@ -115,7 +114,9 @@ class _OrderPanel extends StatelessWidget {
 }
 
 class _FilmDetailsCard extends StatelessWidget {
-  const _FilmDetailsCard();
+  const _FilmDetailsCard({required this.movie});
+
+  final Movie movie;
 
   @override
   Widget build(BuildContext context) {
@@ -125,18 +126,30 @@ class _FilmDetailsCard extends StatelessWidget {
         color: cinemaSurface,
         borderRadius: BorderRadius.all(Radius.circular(cinemaCornerRadius)),
       ),
-      child: const Column(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: cinemaSpacingSmall,
-        children: [_FilmHeader(), _FilmDescription()],
+        children: [
+          _FilmHeader(movie: movie),
+          Image.asset(
+            movie.imagePath,
+            width: _posterWidth,
+            height: _posterHeight,
+            fit: BoxFit.cover,
+          ),
+          Text(movie.screeningTime, style: cinemaBodyStyle),
+          _FilmDescription(movie: movie),
+        ],
       ),
     );
   }
 }
 
 class _FilmHeader extends StatelessWidget {
-  const _FilmHeader();
+  const _FilmHeader({required this.movie});
+
+  final Movie movie;
 
   @override
   Widget build(BuildContext context) {
@@ -145,19 +158,23 @@ class _FilmHeader extends StatelessWidget {
       textBaseline: TextBaseline.alphabetic,
       spacing: cinemaSpacingSmall,
       children: [
-        Text('${_filmTitle.toUpperCase()} ($_filmYear)',
-            style: cinemaTitleStyle),
-        const Text('($_filmRating)', style: cinemaRatingStyle),
+        Flexible(
+          child: Text('${movie.title.toUpperCase()} (${movie.year})',
+              style: cinemaTitleStyle),
+        ),
+        Text('(${movie.rating})', style: cinemaRatingStyle),
       ],
     );
   }
 }
 
 class _FilmDescription extends StatelessWidget {
-  const _FilmDescription();
+  const _FilmDescription({required this.movie});
+
+  final Movie movie;
 
   @override
   Widget build(BuildContext context) {
-    return const Text(_filmDescription, style: cinemaBodyStyle);
+    return Text(movie.description, style: cinemaBodyStyle);
   }
 }
