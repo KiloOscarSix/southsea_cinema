@@ -28,6 +28,11 @@ const TextStyle cinemaRatingStyle = TextStyle(
   fontSize: 12,
 );
 
+const TextStyle cinemaMutedStyle = TextStyle(
+  color: cinemaFontMuted,
+  fontSize: 15,
+);
+
 const TextStyle cinemaBodyStyle = TextStyle(
   color: cinemaFontWhite,
   fontSize: 15,
