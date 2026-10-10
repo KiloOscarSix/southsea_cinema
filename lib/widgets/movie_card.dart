@@ -34,7 +34,7 @@ class MovieCard extends StatelessWidget {
                   style: cinemaTitleStyle,
                 ),
               ),
-              Text('(${movie.rating})', style: cinemaMutedStyle),
+              Text('(${movie.ageRating})', style: cinemaMutedStyle),
             ],
           ),
           const SizedBox(height: cinemaSpacingMedium),

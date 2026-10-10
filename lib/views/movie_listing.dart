@@ -123,6 +123,7 @@ class _FilmDetailsCard extends StatelessWidget {
             fit: BoxFit.cover,
           ),
           Text(movie.screeningTime, style: cinemaBodyStyle),
+          Text(movie.formattedPrice, style: cinemaBodyStyle),
           _FilmDescription(movie: movie),
         ],
       ),
@@ -145,7 +146,7 @@ class _FilmHeader extends StatelessWidget {
           child: Text('${movie.title.toUpperCase()} (${movie.year})',
               style: cinemaTitleStyle),
         ),
-        Text('(${movie.rating})', style: cinemaRatingStyle),
+        Text('(${movie.ageRating})', style: cinemaRatingStyle),
       ],
     );
   }
