@@ -29,4 +29,30 @@ class MovieRepository {
           screeningTime: "21:00")
     ];
   }
+
+  Movie? getMovieById(String id) {
+    for (final movie in getMovies()) {
+      if (movie.id == id) return movie;
+    }
+
+    return null;
+  }
+
+  List<Movie> getMoviesByAgeRating(String rating) {
+    final List<Movie> matches = [];
+    for (final movie in getMovies()) {
+      if (movie.ageRating == rating) matches.add(movie);
+    }
+
+    return matches;
+  }
+
+  List<Movie> getMoviesUnderPrice(double maxPrice) {
+    final List<Movie> matches = [];
+    for (final movie in getMovies()) {
+      if (movie.price <= maxPrice) matches.add(movie);
+    }
+
+    return matches;
+  }
 }
