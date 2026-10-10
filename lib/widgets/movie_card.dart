@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:southsea_cinema/constants.dart';
 import 'package:southsea_cinema/models/movie.dart';
+import 'package:southsea_cinema/views/movie_listing.dart';
 
 const double _posterWidth = 100;
 const double _posterHeight = 150;
 
 class MovieCard extends StatelessWidget {
-  const MovieCard({super.key, required this.movie, required this.onBook});
+  const MovieCard({super.key, required this.movie});
 
   final Movie movie;
-  final VoidCallback onBook;
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +25,10 @@ class MovieCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+            crossAxisAlignment: CrossAxisAlignment.end,
             spacing: cinemaSpacingSmall,
             children: [
-              Flexible(
+              Expanded(
                 child: Text(
                   movie.title.toUpperCase(),
                   style: cinemaTitleStyle,
@@ -61,8 +60,15 @@ class MovieCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(movie.screeningTime, style: cinemaBodyStyle),
-              FilledButton(
-                onPressed: onBook,
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) {
+                      return MovieListing(movie: movie);
+                    }),
+                  );
+                },
                 child: Text('Book now'.toUpperCase()),
               ),
             ],
