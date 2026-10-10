@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:southsea_cinema/constants.dart';
 import 'package:southsea_cinema/main.dart';
 import 'package:southsea_cinema/views/home_view.dart';
+import 'package:southsea_cinema/views/movie_listing.dart';
 
 void main() {
   group('SouthseaCinemaApp', () {
@@ -17,6 +18,31 @@ void main() {
       expect(find.text('THE PHANTOM OF THE OPERA'), findsOneWidget);
       expect(find.byType(ElevatedButton), findsNWidgets(2));
       expect(find.text('BOOK NOW'), findsNWidgets(2));
+    });
+
+    testWidgets('navigates from home page to movie listing and adds to order',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(const SouthseaCinemaApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('BOOK NOW').first);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MovieListing), findsOneWidget);
+      expect(find.byType(HomeView), findsNothing);
+      expect(find.text('DRACULA (1931)'), findsOneWidget);
+      expect(find.text('(PG)'), findsOneWidget);
+      expect(find.text('19:30'), findsOneWidget);
+      expect(find.text('£6.00'), findsOneWidget);
+      expect(find.text('ADD TO ORDER'), findsOneWidget);
+      expect(
+          find.text('1 ticket for Dracula added to your order'), findsNothing);
+
+      await tester.tap(find.text('ADD TO ORDER'));
+      await tester.pump();
+
+      expect(find.text('1 ticket for Dracula added to your order'),
+          findsOneWidget);
     });
   });
 }
