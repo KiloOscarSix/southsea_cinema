@@ -20,16 +20,14 @@ class MovieListing extends StatefulWidget {
 
 class _MovieListingState extends State<MovieListing> {
   int _quantity = 1;
+  String _orderMessage = '';
 
   void _addToOrder() {
     final noun = _quantity == 1 ? 'ticket' : 'tickets';
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text('$_quantity $noun for ${widget.movie.title} added to your order'),
-        ),
-      );
+    setState(() {
+      _orderMessage =
+          '$_quantity $noun for ${widget.movie.title} added to your order';
+    });
   }
 
   @override
@@ -45,70 +43,57 @@ class _MovieListingState extends State<MovieListing> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth > _wideLayoutBreakpoint;
-          final orderPanel = _OrderPanel(
-            quantity: _quantity,
-            onQuantityChanged: (value) => setState(() => _quantity = value),
-            onAddToOrder: _addToOrder,
+          final orderPanel = Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: cinemaSpacingMedium,
+            children: [
+              DropdownMenu<int>(
+                expandedInsets: EdgeInsets.zero,
+                initialSelection: _quantity,
+                label: const Text('Quantity'),
+                dropdownMenuEntries: [
+                  for (var i = 1; i <= _maxTicketsPerOrder; i++)
+                    DropdownMenuEntry<int>(value: i, label: '$i'),
+                ],
+                onSelected: (value) {
+                  if (value != null) {
+                    setState(() => _quantity = value);
+                  }
+                },
+              ),
+              ElevatedButton(
+                onPressed: _addToOrder,
+                child: Text('Add to order'.toUpperCase()),
+              ),
+              Text(_orderMessage, style: cinemaBodyStyle),
+            ],
           );
 
-          return SingleChildScrollView(
+          return ListView(
             padding: const EdgeInsets.all(cinemaSpacingMedium),
-            child: isWide
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: cinemaSpacingMedium,
-                    children: [
-                      Expanded(child: _FilmDetailsCard(movie: widget.movie)),
-                      SizedBox(width: _wideOrderPanelWidth, child: orderPanel),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: cinemaSpacingMedium,
-                    children: [_FilmDetailsCard(movie: widget.movie), orderPanel],
-                  ),
+            children: [
+              isWide
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: cinemaSpacingMedium,
+                      children: [
+                        Expanded(child: _FilmDetailsCard(movie: widget.movie)),
+                        SizedBox(
+                            width: _wideOrderPanelWidth, child: orderPanel),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: cinemaSpacingMedium,
+                      children: [
+                        _FilmDetailsCard(movie: widget.movie),
+                        orderPanel
+                      ],
+                    ),
+            ],
           );
         },
       ),
-    );
-  }
-}
-
-class _OrderPanel extends StatelessWidget {
-  const _OrderPanel({
-    required this.quantity,
-    required this.onQuantityChanged,
-    required this.onAddToOrder,
-  });
-
-  final int quantity;
-  final ValueChanged<int> onQuantityChanged;
-  final VoidCallback onAddToOrder;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: cinemaSpacingMedium,
-      children: [
-        DropdownMenu<int>(
-          expandedInsets: EdgeInsets.zero,
-          initialSelection: quantity,
-          label: const Text('Quantity'),
-          textStyle: cinemaBodyStyle,
-          dropdownMenuEntries: [
-            for (var i = 1; i <= _maxTicketsPerOrder; i++)
-              DropdownMenuEntry<int>(value: i, label: '$i'),
-          ],
-          onSelected: (value) {
-            if (value != null) onQuantityChanged(value);
-          },
-        ),
-        FilledButton(
-          onPressed: onAddToOrder,
-          child: Text('Add to order'.toUpperCase()),
-        ),
-      ],
     );
   }
 }
@@ -127,7 +112,6 @@ class _FilmDetailsCard extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(cinemaCornerRadius)),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: cinemaSpacingSmall,
         children: [
@@ -154,11 +138,10 @@ class _FilmHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
+      crossAxisAlignment: CrossAxisAlignment.end,
       spacing: cinemaSpacingSmall,
       children: [
-        Flexible(
+        Expanded(
           child: Text('${movie.title.toUpperCase()} (${movie.year})',
               style: cinemaTitleStyle),
         ),
