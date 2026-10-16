@@ -22,6 +22,12 @@ class SouthseaCinemaApp extends StatelessWidget {
           primary: cinemaBrand,
           surface: cinemaSurface,
         ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: cinemaSurface,
+          iconTheme: IconThemeData(color: cinemaBrand),
+          titleTextStyle: cinemaHeaderStyle,
+          elevation: 0,
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: cinemaBrand,
