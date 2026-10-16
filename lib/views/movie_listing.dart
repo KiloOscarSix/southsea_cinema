@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:southsea_cinema/constants.dart';
 import 'package:southsea_cinema/models/movie.dart';
 import 'package:southsea_cinema/widgets/nav_drawer.dart';
+import 'package:southsea_cinema/widgets/primary_button.dart';
 
 const int _maxTicketsPerOrder = 5;
 const double _wideLayoutBreakpoint = 600;
@@ -58,9 +59,9 @@ class _MovieListingState extends State<MovieListing> {
                   }
                 },
               ),
-              ElevatedButton(
+              PrimaryButton(
+                label: 'Add to order'.toUpperCase(),
                 onPressed: _addToOrder,
-                child: Text('Add to order'.toUpperCase()),
               ),
               Text(_orderMessage, style: cinemaBodyStyle),
             ],
