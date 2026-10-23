@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:southsea_cinema/constants.dart';
 import 'package:southsea_cinema/main.dart';
+import 'package:southsea_cinema/repositories/basket_repository.dart';
 import 'package:southsea_cinema/views/home_view.dart';
 import 'package:southsea_cinema/views/movie_listing.dart';
 
 void main() {
+  setUp(() {
+    BasketRepository.instance.clear();
+  });
+
   group('SouthseaCinemaApp', () {
     testWidgets('displays home page with title, movies and booking buttons',
         (WidgetTester tester) async {
@@ -43,6 +48,8 @@ void main() {
 
       expect(find.text('1 ticket for Dracula added to your order'),
           findsOneWidget);
+      expect(BasketRepository.instance.getTotalTickets(), 1);
+      expect(BasketRepository.instance.getItems()[0].movie.id, 'dracula');
     });
   });
 }
