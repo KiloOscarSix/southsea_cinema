@@ -119,6 +119,16 @@ Assessment takes place across five two-week demo windows (Weeks 1 and 2, Weeks 3
 
 For the full mark breakdown, the missed-demo rules, and how Extenuating Circumstances affect Item 1, read the [Assessment Guide](https://portdotacdotuk-my.sharepoint.com/:w:/g/personal/mani_ghahremani_port_ac_uk/IQC9nZoNwb2jT40MnFQPZWVvAVdTK2PGBmZ8jPff30RRyPc). The full demo dates and requirements are listed on the [Flutter Course homepage](https://manighahrmani.github.io/sandwich_shop/).
 
+## Extenuating circumstances
+
+If external events affect your study for more than one to two weeks (such as physical or mental illness, family issues, problems with accommodation, or laptop breakdown), submit an [Extenuating Circumstances Form (ECF)](https://myport.port.ac.uk/my-course/exams/extenuating-circumstances#apply) with supporting evidence as soon as you can.
+
+⚠️ Once your ECF is approved, you must email me ([mani.ghahremani@port.ac.uk](mailto:mani.ghahremani@port.ac.uk)).
+
+Please still attend practical sessions and complete as many demos as possible during term time. ECFs apply to the whole of Item 1 (the entire Flutter Coursework, 50% of the module) rather than individual demos.
+
+For the full ECF rules, see the [Assessment Guide](https://portdotacdotuk-my.sharepoint.com/:w:/g/personal/mani_ghahremani_port_ac_uk/IQC9nZoNwb2jT40MnFQPZWVvAVdTK2PGBmZ8jPff30RRyPc).
+
 ## Submission
 
 You will submit the link to your public forked repository on Moodle before the first demo. You are not submitting a zip file or a copy of the source code.
