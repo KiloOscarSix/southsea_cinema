@@ -99,4 +99,54 @@ void main() {
       expect(createMovie(ageRating: '15').isAdultOnly, isFalse);
     });
   });
+
+  group('JSON conversion', () {
+    test('fromJson reads every field and toJson returns the same map', () {
+      final Map<String, dynamic> json = <String, dynamic>{
+        'id': 'test-movie',
+        'title': 'Test Movie',
+        'year': 2024,
+        'description': 'A movie used for testing.',
+        'imagePath': 'assets/images/test_movie.jpg',
+        'genre': 'Drama',
+        'duration': 120,
+        'ageRating': 'PG',
+        'price': 8.5,
+        'screeningTime': '19:30',
+      };
+      final Movie movie = Movie.fromJson(json);
+
+      expect(movie.id, json['id']);
+      expect(movie.title, json['title']);
+      expect(movie.year, json['year']);
+      expect(movie.description, json['description']);
+      expect(movie.imagePath, json['imagePath']);
+      expect(movie.genre, json['genre']);
+      expect(movie.duration, json['duration']);
+      expect(movie.ageRating, json['ageRating']);
+      expect(movie.price, json['price']);
+      expect(movie.screeningTime, json['screeningTime']);
+      expect(movie.toJson(), json);
+    });
+
+    test('fromJson converts a whole-number price to a double', () {
+      final Map<String, dynamic> json = <String, dynamic>{
+        'id': 'test-movie',
+        'title': 'Test Movie',
+        'year': 2024,
+        'description': 'A movie used for testing.',
+        'imagePath': 'assets/images/test_movie.jpg',
+        'genre': 'Drama',
+        'duration': 120,
+        'ageRating': 'PG',
+        'price': 7,
+        'screeningTime': '19:30',
+      };
+      final Movie movie = Movie.fromJson(json);
+
+      expect(movie.price, isA<double>());
+      expect(movie.price, 7.0);
+      expect(movie.toJson()['price'], isA<double>());
+    });
+  });
 }
