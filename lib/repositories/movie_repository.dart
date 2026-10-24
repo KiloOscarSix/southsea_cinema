@@ -4,41 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:southsea_cinema/models/movie.dart';
 
 class MovieRepository {
-  // TODO: Reevaluate this name once the const list in getMovies is removed
-  List<Movie>? _jsonMovies;
+  List<Movie>? _movies;
 
   List<Movie> getMovies() {
-    final List<Movie>? jsonMovies = _jsonMovies;
-    if (jsonMovies != null) {
-      return jsonMovies;
+    final List<Movie>? movies = _movies;
+    if (movies != null) {
+      return movies;
     }
 
-    return const [
-      Movie(
-          id: "dracula",
-          title: "Dracula",
-          year: 1931,
-          description:
-              "The dashing, mysterious Count Dracula (Bela Lugosi) travels to London and takes up residence in an old castle. Soon he begins to wreak havoc, sucking the blood of young women and turning them into vampires. Van Helsing is enlisted to put a stop to the count's never-ending bloodlust.",
-          imagePath: "assets/images/dracula.jpg",
-          genre: "Dark Fantasy",
-          duration: 74,
-          ageRating: "PG",
-          price: 6.00,
-          screeningTime: "19:30"),
-      Movie(
-          id: "phantom-of-the-opera",
-          title: "The Phantom of the Opera",
-          year: 1925,
-          description:
-              "The deformed Phantom who haunts the Paris Opera House causes murder and mayhem in an attempt to make the woman he loves a star.",
-          imagePath: "assets/images/phantom-of-the-opera.jpg",
-          genre: "Horror",
-          duration: 101,
-          ageRating: "12A",
-          price: 7.50,
-          screeningTime: "21:00")
-    ];
+    return [];
   }
 
   Movie? getMovieById(String id) {
@@ -63,7 +37,7 @@ class MovieRepository {
       loadedMovies.add(movie);
     }
 
-    _jsonMovies = loadedMovies;
+    _movies = loadedMovies;
     return loadedMovies;
   }
 
