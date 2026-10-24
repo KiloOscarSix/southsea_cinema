@@ -160,5 +160,35 @@ void main() {
       expect(await prefs.getString(prefEmail), 'up2559676@myport.ac.uk');
       expect(await prefs.getBool(prefReceiveNews), isTrue);
     });
+
+    testWidgets('reopening the page shows the edited and saved settings',
+        (WidgetTester tester) async {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.withData({
+        prefAddress: '11 Downing Street',
+        prefEmail: 'up2559676@myport.ac.uk',
+        prefReceiveNews: true,
+      });
+      await pumpSettingsView(tester);
+
+      await tester.enterText(
+          textFieldWithHint('Enter your address'), '10 Downing Street');
+      await tester.enterText(
+          textFieldWithHint('Enter your email'), 'updated@example.com');
+      await tester.tap(find.byType(Switch));
+      await tester.pump();
+      await tapButton(tester, 'SAVE SETTINGS');
+      await tester.pumpAndSettle();
+
+      // Close and reopen the page
+      await tester.pumpWidget(const SizedBox());
+      await pumpSettingsView(tester);
+
+      expect(find.text('Lion Terrace, Portsmouth'), findsOneWidget);
+      expect(find.text('updated@example.com'), findsOneWidget);
+      expect(find.text('10 Downing Street'), findsNothing);
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+      expect(find.text('Your settings have been saved.'), findsNothing);
+    });
   });
 }
