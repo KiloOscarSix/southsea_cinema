@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:southsea_cinema/constants.dart';
 import 'package:southsea_cinema/models/user_settings.dart';
 import 'package:southsea_cinema/widgets/nav_drawer.dart';
 import 'package:southsea_cinema/widgets/primary_button.dart';
+
+const String prefAddress = 'profile_address';
+const String prefEmail = 'profile_email';
+const String prefReceiveNews = 'profile_receive_news';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -27,6 +32,8 @@ class _SettingsViewState extends State<SettingsView> {
     _emailController = TextEditingController();
     _patronNumberController =
         TextEditingController(text: _savedSettings.patronNumber);
+
+    _loadSettings();
   }
 
   @override
@@ -38,13 +45,53 @@ class _SettingsViewState extends State<SettingsView> {
     super.dispose();
   }
 
-  void _saveSettings() {
+  Future<void> _loadSettings() async {
+    final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+    final String? savedAddress = await prefs.getString(prefAddress);
+    final String? savedEmail = await prefs.getString(prefEmail);
+    final bool? savedReceiveNews = await prefs.getBool(prefReceiveNews);
+
+    // Handle null keys
+    String address = '';
+    if (savedAddress != null) {
+      address = savedAddress;
+    }
+    String email = '';
+    if (savedEmail != null) {
+      email = savedEmail;
+    }
+    bool receiveNews = false;
+    if (savedReceiveNews != null) {
+      receiveNews = savedReceiveNews;
+    }
+    if (!mounted) return;
+
+    setState(() {
+      _addressController.text = address;
+      _emailController.text = email;
+      _receiveNews = receiveNews;
+      _savedSettings = UserSettings(
+        address: address,
+        email: email,
+        patronNumber: _savedSettings.patronNumber,
+        marketingEmails: receiveNews,
+      );
+    });
+  }
+
+  Future<void> _saveSettings() async {
     final UserSettings settings = UserSettings(
       address: _addressController.text.trim(),
       email: _emailController.text.trim(),
       patronNumber: _patronNumberController.text.trim(),
       marketingEmails: _receiveNews,
     );
+
+    final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+    await prefs.setString(prefAddress, settings.address);
+    await prefs.setString(prefEmail, settings.email);
+    await prefs.setBool(prefReceiveNews, settings.marketingEmails);
+    if (!mounted) return;
 
     setState(() {
       _savedSettings = settings;

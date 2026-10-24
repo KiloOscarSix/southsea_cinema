@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:southsea_cinema/views/settings_view.dart';
 
 Future<void> pumpSettingsView(WidgetTester tester) async {
   await tester.pumpWidget(const MaterialApp(home: SettingsView()));
+  // Wait for the saved settings
+  await tester.pumpAndSettle();
 }
 
 Finder textFieldWithHint(String hint) {
@@ -12,13 +17,17 @@ Finder textFieldWithHint(String hint) {
 }
 
 Future<void> tapButton(WidgetTester tester, String label) async {
-  // The buttons sit below the default test viewport
   await tester.ensureVisible(find.text(label));
   await tester.tap(find.text(label));
 }
 
 void main() {
   group('SettingsView', () {
+    setUp(() {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.empty();
+    });
+
     testWidgets('displays the form fields, switch and buttons',
         (WidgetTester tester) async {
       await pumpSettingsView(tester);
@@ -50,7 +59,7 @@ void main() {
       expect(tester.widget<Switch>(switchFinder).value, isTrue);
 
       await tapButton(tester, 'SAVE SETTINGS');
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.text('Your settings have been saved.'), findsOneWidget);
       expect(find.text('Lion Terrace, Portsmouth'), findsOneWidget);
@@ -88,7 +97,7 @@ void main() {
       await tester.enterText(
           textFieldWithHint('Enter your email'), 'alex@example.com');
       await tapButton(tester, 'SAVE SETTINGS');
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.enterText(
           textFieldWithHint('Enter your email'), 'changed@example.com');
@@ -102,6 +111,54 @@ void main() {
       expect(find.text('changed@example.com'), findsNothing);
       expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
       expect(find.text('Your settings have been saved.'), findsNothing);
+    });
+
+    testWidgets('loads saved settings when the page opens',
+        (WidgetTester tester) async {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.withData({
+        prefAddress: '11 Downing Street',
+        prefEmail: 'up2559676@myport.ac.uk',
+        prefReceiveNews: true,
+      });
+
+      await pumpSettingsView(tester);
+
+      expect(find.text('11 Downing Street'), findsOneWidget);
+      expect(find.text('up2559676@myport.ac.uk'), findsOneWidget);
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+    });
+
+    testWidgets('uses defaults when nothing has been saved',
+        (WidgetTester tester) async {
+      await pumpSettingsView(tester);
+
+      final TextField addressField =
+          tester.widget<TextField>(textFieldWithHint('Enter your address'));
+      final TextField emailField =
+          tester.widget<TextField>(textFieldWithHint('Enter your email'));
+      expect(addressField.controller!.text, isEmpty);
+      expect(emailField.controller!.text, isEmpty);
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+    });
+
+    testWidgets('saving writes the profile to preferences',
+        (WidgetTester tester) async {
+      await pumpSettingsView(tester);
+
+      await tester.enterText(
+          textFieldWithHint('Enter your address'), '11 Downing Street');
+      await tester.enterText(
+          textFieldWithHint('Enter your email'), 'up2559676@myport.ac.uk');
+      await tester.tap(find.byType(Switch));
+      await tester.pump();
+      await tapButton(tester, 'SAVE SETTINGS');
+      await tester.pumpAndSettle();
+
+      final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+      expect(await prefs.getString(prefAddress), '11 Downing Street');
+      expect(await prefs.getString(prefEmail), 'up2559676@myport.ac.uk');
+      expect(await prefs.getBool(prefReceiveNews), isTrue);
     });
   });
 }
