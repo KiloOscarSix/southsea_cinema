@@ -6,27 +6,35 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('getMovies', () {
-    test('returns at least two movies', () {
-      final movies = MovieRepository().getMovies();
+    test('returns at least two movies', () async {
+      final MovieRepository repository = MovieRepository();
+      await repository.loadMoviesFromAsset();
+      final movies = repository.getMovies();
       expect(movies.length >= 2, isTrue);
     });
 
-    test('each movie has a non-empty id, title and age rating', () {
-      for (final movie in MovieRepository().getMovies()) {
+    test('each movie has a non-empty id, title and age rating', () async {
+      final MovieRepository repository = MovieRepository();
+      await repository.loadMoviesFromAsset();
+      for (final movie in repository.getMovies()) {
         expect(movie.id, isNotEmpty);
         expect(movie.title, isNotEmpty);
         expect(movie.ageRating, isNotEmpty);
       }
     });
 
-    test('each movie has a ticket price greater than zero', () {
-      for (final movie in MovieRepository().getMovies()) {
+    test('each movie has a ticket price greater than zero', () async {
+      final MovieRepository repository = MovieRepository();
+      await repository.loadMoviesFromAsset();
+      for (final movie in repository.getMovies()) {
         expect(movie.price > 0, isTrue);
       }
     });
 
-    test('each movie has a unique id', () {
-      final movies = MovieRepository().getMovies();
+    test('each movie has a unique id', () async {
+      final MovieRepository repository = MovieRepository();
+      await repository.loadMoviesFromAsset();
+      final movies = repository.getMovies();
       for (int i = 0; i < movies.length; i++) {
         for (int j = i + 1; j < movies.length; j++) {
           expect(movies[i].id == movies[j].id, isFalse);
@@ -36,23 +44,28 @@ void main() {
   });
 
   group('getMovieById', () {
-    test('returns match when id exists', () {
-      final Movie? movie = MovieRepository().getMovieById('dracula');
+    test('returns match when id exists', () async {
+      final MovieRepository repository = MovieRepository();
+      await repository.loadMoviesFromAsset();
+      final Movie? movie = repository.getMovieById('dracula');
       expect(movie, isNotNull);
       expect(movie?.id, 'dracula');
       expect(movie?.title, 'Dracula');
       expect(movie?.price, 6.00);
     });
 
-    test('returns null when id does not exist', () {
-      final repo = MovieRepository();
+    test('returns null when id does not exist', () async {
+      final MovieRepository repo = MovieRepository();
+      await repo.loadMoviesFromAsset();
       expect(repo.getMovieById('non-existent'), isNull);
     });
   });
 
   group('getMoviesByAgeRating', () {
-    test('returns only movies with the given age rating', () {
-      final movies = MovieRepository().getMoviesByAgeRating('PG');
+    test('returns only movies with the given age rating', () async {
+      final MovieRepository repository = MovieRepository();
+      await repository.loadMoviesFromAsset();
+      final movies = repository.getMoviesByAgeRating('PG');
       expect(movies.length, 1);
       expect(movies[0].id, 'dracula');
       for (final movie in movies) {
@@ -60,15 +73,19 @@ void main() {
       }
     });
 
-    test('returns an empty list when no movie has the age rating', () {
-      final movies = MovieRepository().getMoviesByAgeRating('18');
+    test('returns an empty list when no movie has the age rating', () async {
+      final MovieRepository repository = MovieRepository();
+      await repository.loadMoviesFromAsset();
+      final movies = repository.getMoviesByAgeRating('18');
       expect(movies, isEmpty);
     });
   });
 
   group('getMoviesUnderPrice', () {
-    test('returns only movies at or below the maximum price', () {
-      final movies = MovieRepository().getMoviesUnderPrice(7.00);
+    test('returns only movies at or below the maximum price', () async {
+      final MovieRepository repository = MovieRepository();
+      await repository.loadMoviesFromAsset();
+      final movies = repository.getMoviesUnderPrice(7.00);
       expect(movies.length, 1);
       expect(movies[0].id, 'dracula');
       for (final movie in movies) {
@@ -76,13 +93,16 @@ void main() {
       }
     });
 
-    test('returns all movies when the maximum price is high enough', () {
-      final repo = MovieRepository();
+    test('returns all movies when the maximum price is high enough', () async {
+      final MovieRepository repo = MovieRepository();
+      await repo.loadMoviesFromAsset();
       expect(repo.getMoviesUnderPrice(100.00).length, repo.getMovies().length);
     });
 
-    test('returns an empty list when every movie costs more', () {
-      final movies = MovieRepository().getMoviesUnderPrice(1.00);
+    test('returns an empty list when every movie costs more', () async {
+      final MovieRepository repository = MovieRepository();
+      await repository.loadMoviesFromAsset();
+      final movies = repository.getMoviesUnderPrice(1.00);
       expect(movies, isEmpty);
     });
   });
@@ -114,15 +134,11 @@ void main() {
       expect(repository.getMovies(), movies);
     });
 
-    test('matches the fixed movie list', () async {
+    test('getMovies returns an empty list before loading', () {
       final MovieRepository repository = MovieRepository();
-      final List<Movie> fixed = repository.getMovies();
-      final List<Movie> loaded = await repository.loadMoviesFromAsset();
 
-      expect(loaded.length, fixed.length);
-      for (int i = 0; i < fixed.length; i++) {
-        expect(loaded[i].toJson(), fixed[i].toJson());
-      }
+      expect(repository.getMovies(), isEmpty);
+      expect(repository.getMovieById('dracula'), isNull);
     });
   });
 }
