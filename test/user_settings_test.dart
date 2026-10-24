@@ -3,16 +3,14 @@ import 'package:southsea_cinema/models/user_settings.dart';
 
 void main() {
   group('UserSettings', () {
-    test('defaults to empty fields and no news', () {
-      const UserSettings settings = UserSettings();
+    test('uses defaults and stores the values passed to the constructor', () {
+      const UserSettings defaults = UserSettings();
 
-      expect(settings.address, isEmpty);
-      expect(settings.email, isEmpty);
-      expect(settings.patronNumber, isEmpty);
-      expect(settings.marketingEmails, isFalse);
-    });
+      expect(defaults.address, isEmpty);
+      expect(defaults.email, isEmpty);
+      expect(defaults.patronNumber, isEmpty);
+      expect(defaults.marketingEmails, isFalse);
 
-    test('stores the values passed to the constructor', () {
       const UserSettings settings = UserSettings(
         address: 'Buckingham Building, Lion Terrace',
         email: 'alex@example.com',

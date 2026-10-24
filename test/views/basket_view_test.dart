@@ -28,28 +28,25 @@ void main() {
   });
 
   group('BasketView', () {
-    testWidgets('shows empty message and no checkout button when empty',
-        (WidgetTester tester) async {
-      await pumpBasketView(tester);
-
-      expect(find.text('My Basket'), findsOneWidget);
-      expect(find.text('Your basket is empty'), findsOneWidget);
-      expect(find.text('CHECKOUT'), findsNothing);
-      expect(find.byIcon(Icons.delete), findsNothing);
-    });
-
-    testWidgets('shows empty state after removing the last line',
+    testWidgets('shows a ticket line, then the empty state after removing it',
         (WidgetTester tester) async {
       BasketRepository.instance
           .addItem(const BasketItem(movie: testMovie1, quantity: 1));
 
       await pumpBasketView(tester);
 
+      expect(find.text('My Basket'), findsOneWidget);
+      expect(find.text('1 x Test Movie One'), findsOneWidget);
+      expect(find.text('CHECKOUT'), findsOneWidget);
+      expect(find.text('Your basket is empty'), findsNothing);
+
       await tester.tap(find.byIcon(Icons.delete));
       await tester.pump();
 
+      expect(find.text('1 x Test Movie One'), findsNothing);
       expect(find.text('Your basket is empty'), findsOneWidget);
       expect(find.text('CHECKOUT'), findsNothing);
+      expect(find.byIcon(Icons.delete), findsNothing);
       expect(BasketRepository.instance.getItems(), isEmpty);
     });
   });

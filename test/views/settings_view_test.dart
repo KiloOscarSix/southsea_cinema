@@ -28,32 +28,42 @@ void main() {
           InMemorySharedPreferencesAsync.empty();
     });
 
-    testWidgets('displays the form fields, switch and buttons',
+    testWidgets('fills in a new profile, saves it and cancels later edits',
         (WidgetTester tester) async {
       await pumpSettingsView(tester);
 
+      // Layout and defaults when nothing has been saved
       expect(find.text('My Settings'), findsOneWidget);
       expect(find.text('Customer Profile'), findsOneWidget);
       expect(find.text('Address'), findsOneWidget);
       expect(find.text('Email Address'), findsOneWidget);
       expect(find.text('Patron Number'), findsOneWidget);
       expect(find.byType(TextField), findsNWidgets(3));
-      expect(find.byType(Switch), findsOneWidget);
       expect(find.text('CANCEL'), findsOneWidget);
       expect(find.text('SAVE SETTINGS'), findsOneWidget);
       expect(find.text('Your settings have been saved.'), findsNothing);
-    });
+      final TextField addressField =
+          tester.widget<TextField>(textFieldWithHint('Enter your address'));
+      final TextField emailField =
+          tester.widget<TextField>(textFieldWithHint('Enter your email'));
+      expect(addressField.controller!.text, isEmpty);
+      expect(emailField.controller!.text, isEmpty);
+      final Finder switchFinder = find.byType(Switch);
+      expect(tester.widget<Switch>(switchFinder).value, isFalse);
+      final Finder patronField = find.widgetWithText(TextField, '1234');
+      expect(tester.widget<TextField>(patronField).readOnly, isTrue);
 
-    testWidgets('entering details, toggling news and saving shows a message',
-        (WidgetTester tester) async {
-      await pumpSettingsView(tester);
+      // Ensure the clear icon empties the address field
+      await tester.enterText(
+          textFieldWithHint('Enter your address'), 'Wrong address');
+      await tester.tap(find.byTooltip('Clear address'));
+      await tester.pump();
+      expect(find.text('Wrong address'), findsNothing);
 
       await tester.enterText(
           textFieldWithHint('Enter your address'), 'Lion Terrace, Portsmouth');
       await tester.enterText(
           textFieldWithHint('Enter your email'), 'alex@example.com');
-      final Finder switchFinder = find.byType(Switch);
-      expect(tester.widget<Switch>(switchFinder).value, isFalse);
       await tester.tap(switchFinder);
       await tester.pump();
       expect(tester.widget<Switch>(switchFinder).value, isTrue);
@@ -62,58 +72,28 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Your settings have been saved.'), findsOneWidget);
-      expect(find.text('Lion Terrace, Portsmouth'), findsOneWidget);
-      expect(find.text('alex@example.com'), findsOneWidget);
-      expect(find.text('1234'), findsOneWidget);
-    });
+      final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+      expect(await prefs.getString(prefAddress), 'Lion Terrace, Portsmouth');
+      expect(await prefs.getString(prefEmail), 'alex@example.com');
+      expect(await prefs.getBool(prefReceiveNews), isTrue);
 
-    testWidgets('patron number is seeded and read-only',
-        (WidgetTester tester) async {
-      await pumpSettingsView(tester);
-
-      final Finder patronField = find.widgetWithText(TextField, '1234');
-      expect(tester.widget<TextField>(patronField).readOnly, isTrue);
-      expect(find.text('1234'), findsOneWidget);
-    });
-
-    testWidgets('clear icon empties the address field',
-        (WidgetTester tester) async {
-      await pumpSettingsView(tester);
-
-      await tester.enterText(
-          textFieldWithHint('Enter your address'), 'Lion Terrace, Portsmouth');
-      expect(find.text('Lion Terrace, Portsmouth'), findsOneWidget);
-
-      await tester.tap(find.byTooltip('Clear address'));
-      await tester.pump();
-
-      expect(find.text('Lion Terrace, Portsmouth'), findsNothing);
-    });
-
-    testWidgets('cancel restores the last saved settings',
-        (WidgetTester tester) async {
-      await pumpSettingsView(tester);
-
-      await tester.enterText(
-          textFieldWithHint('Enter your email'), 'alex@example.com');
-      await tapButton(tester, 'SAVE SETTINGS');
-      await tester.pumpAndSettle();
-
+      // Cancel restores the last saved settings
       await tester.enterText(
           textFieldWithHint('Enter your email'), 'changed@example.com');
-      await tester.tap(find.byType(Switch));
+      await tester.tap(switchFinder);
       await tester.pump();
-
       await tapButton(tester, 'CANCEL');
       await tester.pump();
 
+      expect(find.text('Lion Terrace, Portsmouth'), findsOneWidget);
       expect(find.text('alex@example.com'), findsOneWidget);
       expect(find.text('changed@example.com'), findsNothing);
-      expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+      expect(tester.widget<Switch>(switchFinder).value, isTrue);
+      expect(find.text('1234'), findsOneWidget);
       expect(find.text('Your settings have been saved.'), findsNothing);
     });
 
-    testWidgets('loads saved settings when the page opens',
+    testWidgets('loads saved settings, saves edits and shows them on reopening',
         (WidgetTester tester) async {
       SharedPreferencesAsyncPlatform.instance =
           InMemorySharedPreferencesAsync.withData({
@@ -121,55 +101,11 @@ void main() {
         prefEmail: 'up2559676@myport.ac.uk',
         prefReceiveNews: true,
       });
-
       await pumpSettingsView(tester);
 
       expect(find.text('11 Downing Street'), findsOneWidget);
       expect(find.text('up2559676@myport.ac.uk'), findsOneWidget);
       expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
-    });
-
-    testWidgets('uses defaults when nothing has been saved',
-        (WidgetTester tester) async {
-      await pumpSettingsView(tester);
-
-      final TextField addressField =
-          tester.widget<TextField>(textFieldWithHint('Enter your address'));
-      final TextField emailField =
-          tester.widget<TextField>(textFieldWithHint('Enter your email'));
-      expect(addressField.controller!.text, isEmpty);
-      expect(emailField.controller!.text, isEmpty);
-      expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
-    });
-
-    testWidgets('saving writes the profile to preferences',
-        (WidgetTester tester) async {
-      await pumpSettingsView(tester);
-
-      await tester.enterText(
-          textFieldWithHint('Enter your address'), '11 Downing Street');
-      await tester.enterText(
-          textFieldWithHint('Enter your email'), 'up2559676@myport.ac.uk');
-      await tester.tap(find.byType(Switch));
-      await tester.pump();
-      await tapButton(tester, 'SAVE SETTINGS');
-      await tester.pumpAndSettle();
-
-      final SharedPreferencesAsync prefs = SharedPreferencesAsync();
-      expect(await prefs.getString(prefAddress), '11 Downing Street');
-      expect(await prefs.getString(prefEmail), 'up2559676@myport.ac.uk');
-      expect(await prefs.getBool(prefReceiveNews), isTrue);
-    });
-
-    testWidgets('reopening the page shows the edited and saved settings',
-        (WidgetTester tester) async {
-      SharedPreferencesAsyncPlatform.instance =
-          InMemorySharedPreferencesAsync.withData({
-        prefAddress: '11 Downing Street',
-        prefEmail: 'up2559676@myport.ac.uk',
-        prefReceiveNews: true,
-      });
-      await pumpSettingsView(tester);
 
       await tester.enterText(
           textFieldWithHint('Enter your address'), '10 Downing Street');
@@ -184,9 +120,10 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await pumpSettingsView(tester);
 
-      expect(find.text('Lion Terrace, Portsmouth'), findsOneWidget);
+      expect(find.text('10 Downing Street'), findsOneWidget);
       expect(find.text('updated@example.com'), findsOneWidget);
-      expect(find.text('10 Downing Street'), findsNothing);
+      expect(find.text('11 Downing Street'), findsNothing);
+      expect(find.text('up2559676@myport.ac.uk'), findsNothing);
       expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
       expect(find.text('Your settings have been saved.'), findsNothing);
     });

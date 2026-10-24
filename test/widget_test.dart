@@ -15,7 +15,8 @@ void main() {
   });
 
   group('SouthseaCinemaApp', () {
-    testWidgets('shows a loading indicator until the movies load',
+    testWidgets(
+        'loads films from the JSON asset, books two, removes one and checks out',
         (WidgetTester tester) async {
       await tester.pumpWidget(const SouthseaCinemaApp());
 
@@ -26,13 +27,6 @@ void main() {
 
       expect(find.byType(CircularProgressIndicator), findsNothing);
       expect(find.byType(MovieCard), findsWidgets);
-    });
-
-    testWidgets('books films from the JSON asset, removes one and checks out',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(const SouthseaCinemaApp());
-      await tester.pumpAndSettle();
-
       expect(find.byType(HomeView), findsOneWidget);
       expect(find.text(appTitle), findsOneWidget);
       expect(find.text('DRACULA'), findsOneWidget);
