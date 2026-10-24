@@ -119,8 +119,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('Your basket is empty'), findsOneWidget);
-      expect(
-          find.text('Thank you! Your order for 3 tickets has been received.'),
+      expect(find.text('Your order for 3 tickets has been received.'),
           findsOneWidget);
       expect(find.text('CHECKOUT'), findsNothing);
       expect(BasketRepository.instance.getItems(), isEmpty);
