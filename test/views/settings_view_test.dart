@@ -98,13 +98,13 @@ void main() {
       SharedPreferencesAsyncPlatform.instance =
           InMemorySharedPreferencesAsync.withData({
         prefAddress: '11 Downing Street',
-        prefEmail: 'up2559676@myport.ac.uk',
+        prefEmail: 'up1234567@myport.ac.uk',
         prefReceiveNews: true,
       });
       await pumpSettingsView(tester);
 
       expect(find.text('11 Downing Street'), findsOneWidget);
-      expect(find.text('up2559676@myport.ac.uk'), findsOneWidget);
+      expect(find.text('up1234567@myport.ac.uk'), findsOneWidget);
       expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
 
       await tester.enterText(
@@ -123,7 +123,7 @@ void main() {
       expect(find.text('10 Downing Street'), findsOneWidget);
       expect(find.text('updated@example.com'), findsOneWidget);
       expect(find.text('11 Downing Street'), findsNothing);
-      expect(find.text('up2559676@myport.ac.uk'), findsNothing);
+      expect(find.text('up1234567@myport.ac.uk'), findsNothing);
       expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
       expect(find.text('Your settings have been saved.'), findsNothing);
     });
