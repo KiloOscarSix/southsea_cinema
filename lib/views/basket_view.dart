@@ -22,6 +22,12 @@ class _BasketViewState extends State<BasketView> {
     });
   }
 
+  // Go back to the home page to change the order
+  // TODO: Future update will instead allow updating ticket quantities directly in the basket page
+  void _updateOrder() {
+    Navigator.popUntil(context, ModalRoute.withName('/'));
+  }
+
   void _checkout() {
     final int tickets = _basket.getTotalTickets();
     final String noun = tickets == 1 ? 'ticket' : 'tickets';
@@ -67,9 +73,18 @@ class _BasketViewState extends State<BasketView> {
             value: '£${_basket.getTotal().toStringAsFixed(2)}',
             isBold: true,
           ),
-          PrimaryButton(
-            label: 'Checkout'.toUpperCase(),
-            onPressed: _checkout,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              PrimaryButton(
+                label: 'Update order'.toUpperCase(),
+                onPressed: _updateOrder,
+              ),
+              PrimaryButton(
+                label: 'Checkout'.toUpperCase(),
+                onPressed: _checkout,
+              ),
+            ],
           ),
         ],
       );

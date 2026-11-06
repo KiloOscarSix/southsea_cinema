@@ -49,5 +49,30 @@ void main() {
       expect(find.byIcon(Icons.delete), findsNothing);
       expect(BasketRepository.instance.getItems(), isEmpty);
     });
+
+    testWidgets('Update Order returns to the home page and keeps the basket',
+        (WidgetTester tester) async {
+      BasketRepository.instance
+          .addItem(const BasketItem(movie: testMovie1, quantity: 1));
+
+      // Start on the basket with the home page underneath it
+      await tester.pumpWidget(MaterialApp(
+        initialRoute: '/basket',
+        routes: {
+          '/': (BuildContext context) => const Text('Home page'),
+          '/basket': (BuildContext context) => const BasketView(),
+        },
+      ));
+
+      expect(find.byType(BasketView), findsOneWidget);
+      expect(find.text('UPDATE ORDER'), findsOneWidget);
+
+      await tester.tap(find.text('UPDATE ORDER'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(BasketView), findsNothing);
+      expect(find.text('Home page'), findsOneWidget);
+      expect(BasketRepository.instance.getItems().length, 1);
+    });
   });
 }
