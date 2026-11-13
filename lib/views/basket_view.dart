@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:southsea_cinema/constants.dart';
+import 'package:southsea_cinema/database/cinema_db.dart';
 import 'package:southsea_cinema/models/basket_item.dart';
+import 'package:southsea_cinema/models/booking.dart';
 import 'package:southsea_cinema/repositories/basket_repository.dart';
 import 'package:southsea_cinema/widgets/nav_drawer.dart';
 import 'package:southsea_cinema/widgets/primary_button.dart';
@@ -15,6 +17,38 @@ class BasketView extends StatefulWidget {
 class _BasketViewState extends State<BasketView> {
   final BasketRepository _basket = BasketRepository.instance;
   String _confirmationMessage = '';
+  List<Booking> _bookings = [];
+  bool _loadingBookings = true;
+  String _bookingsError = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBookings();
+  }
+
+  Future<void> _loadBookings() async {
+    try {
+      final List<Booking> bookings =
+          await CinemaDatabase.instance.getAllBookings();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _bookings = bookings;
+        _bookingsError = '';
+        _loadingBookings = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _bookingsError = 'Could not load bookings: $error';
+        _loadingBookings = false;
+      });
+    }
+  }
 
   void _removeItem(int index) {
     setState(() {
@@ -28,14 +62,57 @@ class _BasketViewState extends State<BasketView> {
     Navigator.popUntil(context, ModalRoute.withName('/'));
   }
 
-  void _checkout() {
+  String _buildSummary(List<BasketItem> items) {
+    final List<String> lines = [];
+    for (final BasketItem item in items) {
+      lines.add('${item.quantity} x ${item.movie.title}');
+    }
+    return lines.join(', ');
+  }
+
+  String _formatDate(DateTime now) {
+    final String day = now.day.toString().padLeft(2, '0');
+    final String month = now.month.toString().padLeft(2, '0');
+    final String hour = now.hour.toString().padLeft(2, '0');
+    final String minute = now.minute.toString().padLeft(2, '0');
+    return '$day/$month/${now.year} $hour:$minute';
+  }
+
+  Future<void> _checkout() async {
     final int tickets = _basket.getTotalTickets();
     final String noun = tickets == 1 ? 'ticket' : 'tickets';
+    final String summary = _buildSummary(_basket.getItems());
+    final double total = _basket.getTotal();
+    final String date = _formatDate(DateTime.now());
 
-    setState(() {
-      _confirmationMessage = 'Your order for $tickets $noun has been received.';
+    try {
+      final CinemaDatabase database = CinemaDatabase.instance;
+      final int bookingNumber = await database.getNextBookingNumber();
+      final Booking booking = Booking(
+        bookingNumber: bookingNumber,
+        summary: summary,
+        total: total,
+        date: date,
+      );
+
+      await database.insertBooking(booking);
       _basket.clear();
-    });
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _confirmationMessage =
+            'Booking #$bookingNumber confirmed for $tickets $noun.';
+      });
+      await _loadBookings();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _confirmationMessage = 'Could not save your booking: $error';
+      });
+    }
   }
 
   @override
@@ -82,13 +159,52 @@ class _BasketViewState extends State<BasketView> {
               ),
               PrimaryButton(
                 label: 'Checkout'.toUpperCase(),
-                onPressed: _checkout,
+                onPressed: () {
+                  _checkout();
+                },
               ),
             ],
           ),
+          if (_confirmationMessage.isNotEmpty)
+            Text(
+              _confirmationMessage,
+              style: cinemaBodyStyle.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
         ],
       );
     }
+
+    final Widget pastBookings;
+    if (_loadingBookings) {
+      pastBookings = const Center(child: CircularProgressIndicator());
+    } else if (_bookingsError.isNotEmpty) {
+      pastBookings = Text(_bookingsError, style: cinemaMutedStyle);
+    } else if (_bookings.isEmpty) {
+      pastBookings = const Center(
+        child: Text('No bookings yet', style: cinemaMutedStyle),
+      );
+    } else {
+      pastBookings = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: cinemaSpacingSmall,
+        children: [
+          for (final Booking booking in _bookings)
+            _BookingCard(booking: booking),
+        ],
+      );
+    }
+
+    content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: cinemaSpacingMedium,
+      children: [
+        content,
+        const Divider(color: cinemaFontMuted),
+        Text('Past bookings'.toUpperCase(), style: cinemaTitleStyle),
+        pastBookings,
+      ],
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -147,6 +263,41 @@ class _BasketLine extends StatelessWidget {
             tooltip: 'Remove',
             onPressed: onDelete,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BookingCard extends StatelessWidget {
+  const _BookingCard({required this.booking});
+
+  final Booking booking;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(cinemaSpacingSmall),
+      decoration: const BoxDecoration(
+        color: cinemaSurface,
+        borderRadius: BorderRadius.all(Radius.circular(cinemaCornerRadius)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Booking #${booking.bookingNumber}',
+                style: cinemaBodyStyle.copyWith(fontWeight: FontWeight.bold),
+              ),
+              Text('£${booking.total.toStringAsFixed(2)}',
+                  style: cinemaBodyStyle),
+            ],
+          ),
+          Text(booking.summary, style: cinemaBodyStyle),
+          Text(booking.date, style: cinemaMutedStyle),
         ],
       ),
     );

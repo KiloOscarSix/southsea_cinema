@@ -2,16 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:southsea_cinema/constants.dart';
+import 'package:southsea_cinema/database/cinema_db.dart';
 import 'package:southsea_cinema/main.dart';
 import 'package:southsea_cinema/repositories/basket_repository.dart';
 import 'package:southsea_cinema/views/home_view.dart';
 import 'package:southsea_cinema/views/movie_listing.dart';
 import 'package:southsea_cinema/widgets/movie_card.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
-  setUp(() {
+  setUp(() async {
     rootBundle.clear();
     BasketRepository.instance.clear();
+
+    sqfliteFfiInit();
+    final Database database = await databaseFactoryFfiNoIsolate.openDatabase(
+      inMemoryDatabasePath,
+      options: OpenDatabaseOptions(
+        version: 1,
+        onCreate: CinemaDatabase.instance.createTables,
+      ),
+    );
+    CinemaDatabase.instance.setDatabase(database);
+  });
+
+  tearDown(() async {
+    await CinemaDatabase.instance.close();
   });
 
   group('SouthseaCinemaApp', () {
@@ -102,11 +118,15 @@ void main() {
       expect(find.text('£12.00'), findsNWidgets(2));
       expect(BasketRepository.instance.getItems().length, 1);
 
-      await tester.tap(find.text('CHECKOUT'));
-      await tester.pump();
+      await tester.runAsync(() async {
+        await tester.tap(find.text('CHECKOUT'));
+        await tester.pumpAndSettle();
+      });
+      await tester.pumpAndSettle();
 
-      expect(find.text('Your order for 2 tickets has been received.'),
-          findsOneWidget);
+      expect(
+          find.text('Booking #1001 confirmed for 2 tickets.'), findsOneWidget);
+      expect(find.text('Booking #1001'), findsOneWidget);
       expect(find.text('Your basket is empty'), findsOneWidget);
       expect(find.text('CHECKOUT'), findsNothing);
       expect(BasketRepository.instance.getItems(), isEmpty);
