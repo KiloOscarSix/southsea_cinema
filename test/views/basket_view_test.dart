@@ -34,6 +34,19 @@ const Movie testMovie2 = Movie(
   screeningTime: '21:00',
 );
 
+const Movie testMovie3 = Movie(
+  id: 'test-movie-3',
+  title: 'Test Movie Three',
+  year: 2023,
+  description: 'A third movie used for testing.',
+  imagePath: 'assets/images/test_movie_3.jpg',
+  genre: 'Comedy',
+  duration: 100,
+  ageRating: '12A',
+  price: 5.0,
+  screeningTime: '17:15',
+);
+
 Future<void> pumpBasketView(WidgetTester tester) async {
   await tester.pumpWidget(const MaterialApp(home: BasketView()));
 }
@@ -77,6 +90,37 @@ void main() {
       expect(find.text('CHECKOUT'), findsNothing);
       expect(find.byIcon(Icons.delete), findsNothing);
       expect(BasketRepository.instance.getItems(), isEmpty);
+    });
+
+    testWidgets('removing the middle of three films keeps the other two',
+        (WidgetTester tester) async {
+      BasketRepository.instance
+          .addItem(const BasketItem(movie: testMovie1, quantity: 1));
+      BasketRepository.instance
+          .addItem(const BasketItem(movie: testMovie2, quantity: 2));
+      BasketRepository.instance
+          .addItem(const BasketItem(movie: testMovie3, quantity: 3));
+
+      await pumpBasketView(tester);
+
+      expect(find.byIcon(Icons.delete), findsNWidgets(3));
+      expect(find.text('2 x Test Movie Two'), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('remove-test-movie-2')));
+      await tester.pump();
+
+      expect(find.text('1 x Test Movie One'), findsOneWidget);
+      expect(find.text('2 x Test Movie Two'), findsNothing);
+      expect(find.text('3 x Test Movie Three'), findsOneWidget);
+      expect(find.byIcon(Icons.delete), findsNWidgets(2));
+      expect(find.byKey(const ValueKey('remove-test-movie-2')), findsNothing);
+      expect(find.text('4'), findsOneWidget);
+      expect(find.text('£21.00'), findsOneWidget);
+
+      final List<BasketItem> items = BasketRepository.instance.getItems();
+      expect(items.length, 2);
+      expect(items[0].movie.id, 'test-movie-1');
+      expect(items[1].movie.id, 'test-movie-3');
     });
 
     testWidgets('Update Order returns to the home page and keeps the basket',

@@ -259,6 +259,7 @@ class _BasketLine extends StatelessWidget {
           ),
           Text('£${item.lineTotal.toStringAsFixed(2)}', style: cinemaBodyStyle),
           IconButton(
+            key: ValueKey('remove-${item.movie.id}'),
             icon: const Icon(Icons.delete, color: Colors.red),
             tooltip: 'Remove',
             onPressed: onDelete,
