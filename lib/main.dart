@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:southsea_cinema/constants.dart';
+import 'package:southsea_cinema/theme.dart';
 import 'package:southsea_cinema/views/basket_view.dart';
 import 'package:southsea_cinema/views/home_view.dart';
 import 'package:southsea_cinema/views/settings_view.dart';
@@ -9,52 +11,50 @@ void main() {
   runApp(const SouthseaCinemaApp());
 }
 
-class SouthseaCinemaApp extends StatelessWidget {
+class SouthseaCinemaApp extends StatefulWidget {
   const SouthseaCinemaApp({super.key});
+
+  @override
+  State<SouthseaCinemaApp> createState() => _SouthseaCinemaAppState();
+}
+
+class _SouthseaCinemaAppState extends State<SouthseaCinemaApp> {
+  ThemeMode _themeMode = ThemeMode.dark;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+  }
+
+  Future<void> _loadThemeMode() async {
+    final SharedPreferencesAsync prefs = SharedPreferencesAsync();
+    final bool? savedDarkMode = await prefs.getBool(prefDarkMode);
+    bool darkMode = true;
+    if (savedDarkMode != null) {
+      darkMode = savedDarkMode;
+    }
+    if (!mounted) return;
+
+    setState(() {
+      _themeMode = darkMode ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
+  void _setThemeMode(ThemeMode themeMode) {
+    setState(() {
+      _themeMode = themeMode;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: appTitle,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: cinemaBackground,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: cinemaBrand,
-          primary: cinemaBrand,
-          surface: cinemaSurface,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: cinemaSurface,
-          iconTheme: IconThemeData(color: cinemaBrand),
-          titleTextStyle: cinemaHeaderStyle,
-          elevation: 0,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: cinemaBrand,
-            foregroundColor: cinemaFontWhite,
-            textStyle: cinemaButtonStyle,
-            shape: const RoundedRectangleBorder(),
-          ),
-        ),
-        snackBarTheme: const SnackBarThemeData(
-          backgroundColor: cinemaSurface,
-          contentTextStyle: cinemaBodyStyle,
-        ),
-        inputDecorationTheme: const InputDecorationTheme(
-          labelStyle: TextStyle(color: cinemaBrand),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: cinemaBrand),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: cinemaBrand),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: cinemaBrandLight, width: 2),
-          ),
-        ),
-      ),
+      theme: cinemaLightTheme,
+      darkTheme: cinemaDarkTheme,
+      themeMode: _themeMode,
       initialRoute: '/',
       routes: {
         '/': (BuildContext context) {
@@ -64,7 +64,7 @@ class SouthseaCinemaApp extends StatelessWidget {
           return const BasketView();
         },
         '/settings': (BuildContext context) {
-          return const SettingsView();
+          return SettingsView(onThemeModeChanged: _setThemeMode);
         },
         // '/listing': (BuildContext context) {
         //   return const MovieListing();

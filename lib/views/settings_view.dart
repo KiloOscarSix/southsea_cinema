@@ -8,9 +8,12 @@ import 'package:southsea_cinema/widgets/primary_button.dart';
 const String prefAddress = 'profile_address';
 const String prefEmail = 'profile_email';
 const String prefReceiveNews = 'profile_receive_news';
+const String prefDarkMode = 'appearance_dark_mode';
 
 class SettingsView extends StatefulWidget {
-  const SettingsView({super.key});
+  final ValueChanged<ThemeMode>? onThemeModeChanged;
+
+  const SettingsView({super.key, this.onThemeModeChanged});
 
   @override
   State<SettingsView> createState() => _SettingsViewState();
@@ -21,6 +24,7 @@ class _SettingsViewState extends State<SettingsView> {
   late TextEditingController _emailController;
   late TextEditingController _patronNumberController;
   bool _receiveNews = false;
+  bool _darkMode = true;
   UserSettings _savedSettings = const UserSettings(patronNumber: '1234');
   String _confirmationMessage = '';
 
@@ -50,6 +54,7 @@ class _SettingsViewState extends State<SettingsView> {
     final String? savedAddress = await prefs.getString(prefAddress);
     final String? savedEmail = await prefs.getString(prefEmail);
     final bool? savedReceiveNews = await prefs.getBool(prefReceiveNews);
+    final bool? savedDarkMode = await prefs.getBool(prefDarkMode);
 
     // Handle null keys
     String address = '';
@@ -64,17 +69,23 @@ class _SettingsViewState extends State<SettingsView> {
     if (savedReceiveNews != null) {
       receiveNews = savedReceiveNews;
     }
+    bool darkMode = true;
+    if (savedDarkMode != null) {
+      darkMode = savedDarkMode;
+    }
     if (!mounted) return;
 
     setState(() {
       _addressController.text = address;
       _emailController.text = email;
       _receiveNews = receiveNews;
+      _darkMode = darkMode;
       _savedSettings = UserSettings(
         address: address,
         email: email,
         patronNumber: _savedSettings.patronNumber,
         marketingEmails: receiveNews,
+        darkMode: darkMode,
       );
     });
   }
@@ -85,12 +96,16 @@ class _SettingsViewState extends State<SettingsView> {
       email: _emailController.text.trim(),
       patronNumber: _patronNumberController.text.trim(),
       marketingEmails: _receiveNews,
+      darkMode: _darkMode,
     );
 
     final SharedPreferencesAsync prefs = SharedPreferencesAsync();
     await prefs.setString(prefAddress, settings.address);
     await prefs.setString(prefEmail, settings.email);
     await prefs.setBool(prefReceiveNews, settings.marketingEmails);
+    await prefs.setBool(prefDarkMode, settings.darkMode);
+    widget.onThemeModeChanged
+        ?.call(settings.darkMode ? ThemeMode.dark : ThemeMode.light);
     if (!mounted) return;
 
     setState(() {
@@ -106,6 +121,7 @@ class _SettingsViewState extends State<SettingsView> {
       _emailController.text = _savedSettings.email;
       _patronNumberController.text = _savedSettings.patronNumber;
       _receiveNews = _savedSettings.marketingEmails;
+      _darkMode = _savedSettings.darkMode;
       _confirmationMessage = '';
     });
   }
@@ -123,7 +139,8 @@ class _SettingsViewState extends State<SettingsView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: cinemaSpacingSmall,
           children: [
-            const Text('Customer Profile', style: cinemaTitleStyle),
+            Text('Customer Profile',
+                style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: cinemaSpacingSmall),
             // -- Address
             const Text('Address', style: cinemaMutedStyle),
@@ -172,11 +189,32 @@ class _SettingsViewState extends State<SettingsView> {
                       Text('Receive marketing emails', style: cinemaBodyStyle),
                 ),
                 Switch(
+                  key: const Key('marketing_emails_switch'),
                   value: _receiveNews,
                   activeThumbColor: cinemaBrand,
                   onChanged: (bool value) {
                     setState(() {
                       _receiveNews = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: cinemaSpacingSmall),
+            // -- Appearance
+            const Text('Appearance', style: cinemaMutedStyle),
+            Row(
+              children: [
+                const Expanded(
+                  child: Text('Dark mode', style: cinemaBodyStyle),
+                ),
+                Switch(
+                  key: const Key('dark_mode_switch'),
+                  value: _darkMode,
+                  activeThumbColor: cinemaBrand,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _darkMode = value;
                     });
                   },
                 ),
@@ -189,8 +227,8 @@ class _SettingsViewState extends State<SettingsView> {
               children: [
                 TextButton(
                   style: TextButton.styleFrom(
-                    backgroundColor: cinemaSurface,
-                    foregroundColor: cinemaFontWhite,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    foregroundColor: Theme.of(context).colorScheme.onSurface,
                     textStyle: cinemaButtonStyle,
                     shape: const RoundedRectangleBorder(),
                   ),

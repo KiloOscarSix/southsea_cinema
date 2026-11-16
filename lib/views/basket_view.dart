@@ -140,7 +140,8 @@ class _BasketViewState extends State<BasketView> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: cinemaSpacingMedium,
         children: [
-          Text('Your tickets'.toUpperCase(), style: cinemaTitleStyle),
+          Text('Your tickets'.toUpperCase(),
+              style: Theme.of(context).textTheme.titleLarge),
           for (int i = 0; i < items.length; i++)
             _BasketLine(item: items[i], onDelete: () => _removeItem(i)),
           const Divider(color: cinemaFontMuted),
@@ -201,7 +202,8 @@ class _BasketViewState extends State<BasketView> {
       children: [
         content,
         const Divider(color: cinemaFontMuted),
-        Text('Past bookings'.toUpperCase(), style: cinemaTitleStyle),
+        Text('Past bookings'.toUpperCase(),
+            style: Theme.of(context).textTheme.titleLarge),
         pastBookings,
       ],
     );
@@ -240,9 +242,10 @@ class _BasketLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(cinemaSpacingSmall),
-      decoration: const BoxDecoration(
-        color: cinemaSurface,
-        borderRadius: BorderRadius.all(Radius.circular(cinemaCornerRadius)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius:
+            const BorderRadius.all(Radius.circular(cinemaCornerRadius)),
       ),
       child: Row(
         spacing: cinemaSpacingSmall,
@@ -279,9 +282,10 @@ class _BookingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(cinemaSpacingSmall),
-      decoration: const BoxDecoration(
-        color: cinemaSurface,
-        borderRadius: BorderRadius.all(Radius.circular(cinemaCornerRadius)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius:
+            const BorderRadius.all(Radius.circular(cinemaCornerRadius)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

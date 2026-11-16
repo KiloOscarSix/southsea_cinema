@@ -10,18 +10,21 @@ void main() {
       expect(defaults.email, isEmpty);
       expect(defaults.patronNumber, isEmpty);
       expect(defaults.marketingEmails, isFalse);
+      expect(defaults.darkMode, isTrue);
 
       const UserSettings settings = UserSettings(
         address: 'Buckingham Building, Lion Terrace',
         email: 'alex@example.com',
         patronNumber: '1234',
         marketingEmails: true,
+        darkMode: false,
       );
 
       expect(settings.address, 'Buckingham Building, Lion Terrace');
       expect(settings.email, 'alex@example.com');
       expect(settings.patronNumber, '1234');
       expect(settings.marketingEmails, isTrue);
+      expect(settings.darkMode, isFalse);
     });
   });
 }

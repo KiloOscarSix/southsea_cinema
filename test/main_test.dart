@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:southsea_cinema/constants.dart';
 import 'package:southsea_cinema/database/cinema_db.dart';
 import 'package:southsea_cinema/main.dart';
 import 'package:southsea_cinema/repositories/basket_repository.dart';
 import 'package:southsea_cinema/views/home_view.dart';
 import 'package:southsea_cinema/views/movie_listing.dart';
+import 'package:southsea_cinema/views/settings_view.dart';
 import 'package:southsea_cinema/widgets/movie_card.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -14,6 +17,8 @@ void main() {
   setUp(() async {
     rootBundle.clear();
     BasketRepository.instance.clear();
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
 
     sqfliteFfiInit();
     final Database database = await databaseFactoryFfiNoIsolate.openDatabase(
@@ -130,6 +135,50 @@ void main() {
       expect(find.text('Your basket is empty'), findsOneWidget);
       expect(find.text('CHECKOUT'), findsNothing);
       expect(BasketRepository.instance.getItems(), isEmpty);
+    });
+
+    testWidgets(
+        'starts in dark mode, switches to light mode in settings and remembers it',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(const SouthseaCinemaApp());
+      await tester.pumpAndSettle();
+      expect(tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
+          ThemeMode.dark);
+
+      await tester.tap(find.byTooltip('Open navigation menu'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('My Settings'));
+      await tester.pumpAndSettle();
+
+      final Finder darkSwitch = find.byKey(const Key('dark_mode_switch'));
+      await tester.ensureVisible(darkSwitch);
+      await tester.tap(darkSwitch);
+      await tester.pump();
+      await tester.ensureVisible(find.text('SAVE SETTINGS'));
+      await tester.tap(find.text('SAVE SETTINGS'));
+      await tester.pumpAndSettle();
+
+      expect(tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
+          ThemeMode.light);
+      expect(Theme.of(tester.element(find.text('Customer Profile'))).brightness,
+          Brightness.light);
+
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(const SouthseaCinemaApp());
+      await tester.pumpAndSettle();
+      expect(tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
+          ThemeMode.light);
+    });
+
+    testWidgets('loads a saved light mode on start',
+        (WidgetTester tester) async {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.withData({prefDarkMode: false});
+      await tester.pumpWidget(const SouthseaCinemaApp());
+      await tester.pumpAndSettle();
+
+      expect(tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
+          ThemeMode.light);
     });
   });
 }

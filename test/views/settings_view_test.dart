@@ -48,8 +48,16 @@ void main() {
           tester.widget<TextField>(textFieldWithHint('Enter your email'));
       expect(addressField.controller!.text, isEmpty);
       expect(emailField.controller!.text, isEmpty);
-      final Finder switchFinder = find.byType(Switch);
+      final Finder switchFinder =
+          find.byKey(const Key('marketing_emails_switch'));
       expect(tester.widget<Switch>(switchFinder).value, isFalse);
+      expect(
+          tester
+              .widget<Switch>(find.byKey(const Key('dark_mode_switch')))
+              .value,
+          isTrue);
+      expect(find.text('Appearance'), findsOneWidget);
+      expect(find.text('Dark mode'), findsOneWidget);
       final Finder patronField = find.widgetWithText(TextField, '1234');
       expect(tester.widget<TextField>(patronField).readOnly, isTrue);
 
@@ -105,13 +113,17 @@ void main() {
 
       expect(find.text('11 Downing Street'), findsOneWidget);
       expect(find.text('up1234567@myport.ac.uk'), findsOneWidget);
-      expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+      expect(
+          tester
+              .widget<Switch>(find.byKey(const Key('marketing_emails_switch')))
+              .value,
+          isTrue);
 
       await tester.enterText(
           textFieldWithHint('Enter your address'), '10 Downing Street');
       await tester.enterText(
           textFieldWithHint('Enter your email'), 'updated@example.com');
-      await tester.tap(find.byType(Switch));
+      await tester.tap(find.byKey(const Key('marketing_emails_switch')));
       await tester.pump();
       await tapButton(tester, 'SAVE SETTINGS');
       await tester.pumpAndSettle();
@@ -124,8 +136,57 @@ void main() {
       expect(find.text('updated@example.com'), findsOneWidget);
       expect(find.text('11 Downing Street'), findsNothing);
       expect(find.text('up1234567@myport.ac.uk'), findsNothing);
-      expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+      expect(
+          tester
+              .widget<Switch>(find.byKey(const Key('marketing_emails_switch')))
+              .value,
+          isFalse);
       expect(find.text('Your settings have been saved.'), findsNothing);
+    });
+
+    testWidgets(
+        'saves dark mode off, reports light mode and cancel restores it',
+        (WidgetTester tester) async {
+      ThemeMode? reported;
+      await tester.pumpWidget(MaterialApp(
+        home: SettingsView(onThemeModeChanged: (ThemeMode m) {
+          reported = m;
+        }),
+      ));
+      await tester.pumpAndSettle();
+
+      final Finder darkSwitch = find.byKey(const Key('dark_mode_switch'));
+      await tester.ensureVisible(darkSwitch);
+      await tester.tap(darkSwitch);
+      await tester.pump();
+      expect(tester.widget<Switch>(darkSwitch).value, isFalse);
+      expect(reported, isNull);
+
+      await tapButton(tester, 'SAVE SETTINGS');
+      await tester.pumpAndSettle();
+      expect(reported, ThemeMode.light);
+      expect(await SharedPreferencesAsync().getBool(prefDarkMode), isFalse);
+
+      await tester.ensureVisible(darkSwitch);
+      await tester.tap(darkSwitch);
+      await tester.pump();
+      expect(tester.widget<Switch>(darkSwitch).value, isTrue);
+      await tapButton(tester, 'CANCEL');
+      await tester.pump();
+      expect(tester.widget<Switch>(darkSwitch).value, isFalse);
+    });
+
+    testWidgets('loads a saved light mode preference',
+        (WidgetTester tester) async {
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.withData({prefDarkMode: false});
+      await pumpSettingsView(tester);
+
+      expect(
+          tester
+              .widget<Switch>(find.byKey(const Key('dark_mode_switch')))
+              .value,
+          isFalse);
     });
   });
 }

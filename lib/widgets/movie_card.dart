@@ -15,7 +15,7 @@ class MovieCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: cinemaBackground,
+      color: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       margin: const EdgeInsets.symmetric(
         horizontal: cinemaSpacingMedium,
@@ -32,7 +32,7 @@ class MovieCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   movie.title.toUpperCase(),
-                  style: cinemaTitleStyle,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               Text('(${movie.ageRating})', style: cinemaMutedStyle),

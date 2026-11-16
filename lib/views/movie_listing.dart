@@ -110,9 +110,10 @@ class _FilmDetailsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(cinemaSpacingMedium),
-      decoration: const BoxDecoration(
-        color: cinemaSurface,
-        borderRadius: BorderRadius.all(Radius.circular(cinemaCornerRadius)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius:
+            const BorderRadius.all(Radius.circular(cinemaCornerRadius)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +148,7 @@ class _FilmHeader extends StatelessWidget {
       children: [
         Expanded(
           child: Text('${movie.title.toUpperCase()} (${movie.year})',
-              style: cinemaTitleStyle),
+              style: Theme.of(context).textTheme.titleLarge),
         ),
         Text('(${movie.ageRating})', style: cinemaRatingStyle),
       ],
