@@ -147,6 +147,21 @@ void main() {
       expect(find.text('Home page'), findsOneWidget);
       expect(BasketRepository.instance.getItems().length, 1);
     });
+
+    testWidgets('fits the order buttons on a narrow phone',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      BasketRepository.instance
+          .addItem(const BasketItem(movie: testMovie1, quantity: 1));
+
+      await pumpBasketView(tester);
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('UPDATE ORDER'), findsOneWidget);
+      expect(find.text('CHECKOUT'), findsOneWidget);
+    });
   });
   group('BasketView checkout', () {
     testWidgets('saves a numbered booking, clears the basket and lists it',

@@ -222,8 +222,9 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             const SizedBox(height: cinemaSpacingSmall),
             // -- Save / Cancel
-            Row(
+            Wrap(
               spacing: cinemaSpacingMedium,
+              runSpacing: cinemaSpacingSmall,
               children: [
                 TextButton(
                   style: TextButton.styleFrom(

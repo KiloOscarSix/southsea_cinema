@@ -151,8 +151,10 @@ class _BasketViewState extends State<BasketView> {
             value: '£${_basket.getTotal().toStringAsFixed(2)}',
             isBold: true,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            spacing: cinemaSpacingMedium,
+            runSpacing: cinemaSpacingSmall,
             children: [
               PrimaryButton(
                 label: 'Update order'.toUpperCase(),

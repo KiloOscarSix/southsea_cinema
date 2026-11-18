@@ -188,5 +188,18 @@ void main() {
               .value,
           isFalse);
     });
+
+    testWidgets('fits the Cancel and Save buttons on a narrow phone',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await pumpSettingsView(tester);
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('CANCEL'), findsOneWidget);
+      expect(find.text('SAVE SETTINGS'), findsOneWidget);
+    });
   });
 }
