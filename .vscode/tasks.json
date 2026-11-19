@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Launch flutter_emulator",
+      "type": "shell",
+      "command": "android emulator start flutter_emulator",
+      "presentation": {
+        "reveal": "silent",
+      },
+      "problemMatcher": [],
+    },
+  ],
+}

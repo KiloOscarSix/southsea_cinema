@@ -1,0 +1,24 @@
+[
+  {
+    "label": "Southsea Cinema (Android emulator)",
+    "adapter": "Dart",
+    "type": "flutter",
+    "request": "launch",
+    "program": "lib/main.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "deviceId": "emulator-5554",
+    "build": {
+      "label": "Launch flutter_emulator",
+      "command": "android emulator start flutter_emulator",
+    },
+  },
+  {
+    "label": "Southsea Cinema (Chrome)",
+    "adapter": "Dart",
+    "type": "flutter",
+    "request": "launch",
+    "program": "lib/main.dart",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "deviceId": "chrome",
+  },
+]
