@@ -3,6 +3,7 @@ import 'package:southsea_cinema/constants.dart';
 import 'package:southsea_cinema/database/cinema_db.dart';
 import 'package:southsea_cinema/models/basket_item.dart';
 import 'package:southsea_cinema/models/booking.dart';
+import 'package:southsea_cinema/models/booking_item.dart';
 import 'package:southsea_cinema/repositories/basket_repository.dart';
 import 'package:southsea_cinema/widgets/nav_drawer.dart';
 import 'package:southsea_cinema/widgets/primary_button.dart';
@@ -88,11 +89,24 @@ class _BasketViewState extends State<BasketView> {
     try {
       final CinemaDatabase database = CinemaDatabase.instance;
       final int bookingNumber = await database.getNextBookingNumber();
+
+      final List<BookingItem> bookingItems = [];
+      for (final BasketItem item in _basket.getItems()) {
+        bookingItems.add(BookingItem(
+          movieId: item.movie.id,
+          movieTitle: item.movie.title,
+          screeningTime: item.movie.screeningTime,
+          unitPrice: item.movie.price,
+          quantity: item.quantity,
+        ));
+      }
+
       final Booking booking = Booking(
         bookingNumber: bookingNumber,
         summary: summary,
         total: total,
         date: date,
+        items: bookingItems,
       );
 
       await database.insertBooking(booking);
@@ -303,7 +317,14 @@ class _BookingCard extends StatelessWidget {
                   style: cinemaBodyStyle),
             ],
           ),
-          Text(booking.summary, style: cinemaBodyStyle),
+          if (booking.items.isEmpty)
+            Text(booking.summary, style: cinemaBodyStyle)
+          else
+            for (final BookingItem item in booking.items)
+              Text(
+                '${item.quantity} x ${item.movieTitle} at ${item.screeningTime} - £${item.unitPrice.toStringAsFixed(2)} each: £${item.lineTotal.toStringAsFixed(2)}',
+                style: cinemaBodyStyle,
+              ),
           Text(booking.date, style: cinemaMutedStyle),
         ],
       ),

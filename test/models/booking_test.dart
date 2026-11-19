@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:southsea_cinema/models/booking.dart';
+import 'package:southsea_cinema/models/booking_item.dart';
 
 void main() {
   group('Booking', () {
@@ -36,6 +37,27 @@ void main() {
       expect(restored.summary, '1 x Oppenheimer');
       expect(restored.total, 6.0);
       expect(restored.date, '02/01/2026 10:20');
+      expect(restored.toMap(), row);
+    });
+
+    test('Items are kept by fromMap and left out of toMap', () {
+      final Map<String, Object?> row = booking.toMap();
+      const List<BookingItem> items = <BookingItem>[
+        BookingItem(
+          movieId: 'dune-2',
+          movieTitle: 'Dune: Part Two',
+          screeningTime: '20:00',
+          unitPrice: 8.25,
+          quantity: 2,
+        ),
+      ];
+
+      final Booking restored = Booking.fromMap(row, items: items);
+
+      expect(booking.items, isEmpty);
+      expect(Booking.fromMap(row).items, isEmpty);
+      expect(restored.items, items);
+      expect(restored.toMap().containsKey('items'), isFalse);
       expect(restored.toMap(), row);
     });
 

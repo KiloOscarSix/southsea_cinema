@@ -58,7 +58,8 @@ void main() {
     final Database database = await databaseFactoryFfiNoIsolate.openDatabase(
       inMemoryDatabasePath,
       options: OpenDatabaseOptions(
-        version: 1,
+        version: CinemaDatabase.databaseVersion,
+        onConfigure: CinemaDatabase.instance.configure,
         onCreate: CinemaDatabase.instance.createTables,
       ),
     );
@@ -196,6 +197,54 @@ void main() {
       expect(find.text('No bookings yet'), findsNothing);
     });
 
+    testWidgets('checkout lists each film of the new booking',
+        (WidgetTester tester) async {
+      BasketRepository.instance
+          .addItem(const BasketItem(movie: testMovie1, quantity: 2));
+      BasketRepository.instance
+          .addItem(const BasketItem(movie: testMovie2, quantity: 1));
+
+      await tester.runAsync(() async {
+        await pumpBasketView(tester);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('CHECKOUT'));
+        await tester.pumpAndSettle();
+      });
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('2 x Test Movie One at 19:30 - £6.00 each: £12.00'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('1 x Test Movie Two at 21:00 - £7.50 each: £7.50'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a failed save keeps the basket', (WidgetTester tester) async {
+      BasketRepository.instance
+          .addItem(const BasketItem(movie: testMovie1, quantity: 0));
+
+      await tester.runAsync(() async {
+        await pumpBasketView(tester);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('CHECKOUT'));
+        await tester.pumpAndSettle();
+      });
+      await tester.pumpAndSettle();
+
+      final List<Booking>? bookings = await tester.runAsync(() {
+        return CinemaDatabase.instance.getAllBookings();
+      });
+
+      expect(
+          find.textContaining('Could not save your booking'), findsOneWidget);
+      expect(BasketRepository.instance.getItems().length, 1);
+      expect(bookings, isNotNull);
+      expect(bookings, isEmpty);
+    });
+
     testWidgets('keeps the basket and shows an error when saving fails',
         (WidgetTester tester) async {
       BasketRepository.instance
@@ -250,6 +299,23 @@ void main() {
         tester.getTopLeft(find.text('Booking #1002')).dy,
         lessThan(tester.getTopLeft(find.text('Booking #1001')).dy),
       );
+    });
+
+    testWidgets('bookings without items keep their summary',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        await CinemaDatabase.instance.insertBooking(const Booking(
+          bookingNumber: 1001,
+          summary: '1 x Dracula',
+          total: 6.00,
+          date: '01/01/2026 10:00',
+        ));
+        await pumpBasketView(tester);
+        await tester.pumpAndSettle();
+      });
+      await tester.pump();
+
+      expect(find.text('1 x Dracula'), findsOneWidget);
     });
 
     testWidgets('shows a message when there are no bookings',
