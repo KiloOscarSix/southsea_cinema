@@ -197,6 +197,24 @@ void main() {
       expect(find.text('No bookings yet'), findsNothing);
     });
 
+    testWidgets('confirms a single ticket in the singular',
+        (WidgetTester tester) async {
+      BasketRepository.instance
+          .addItem(const BasketItem(movie: testMovie1, quantity: 1));
+
+      await tester.runAsync(() async {
+        await pumpBasketView(tester);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('CHECKOUT'));
+        await tester.pumpAndSettle();
+      });
+      await tester.pumpAndSettle();
+
+      expect(
+          find.text('Booking #1001 confirmed for 1 ticket.'), findsOneWidget);
+      expect(find.text('£6.00'), findsOneWidget);
+    });
+
     testWidgets('checkout lists each film of the new booking',
         (WidgetTester tester) async {
       BasketRepository.instance
@@ -329,6 +347,25 @@ void main() {
       expect(find.text('Your basket is empty'), findsOneWidget);
       expect(find.text('PAST BOOKINGS'), findsOneWidget);
       expect(find.text('No bookings yet'), findsOneWidget);
+    });
+
+    testWidgets('shows an error when past bookings cannot be loaded',
+        (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        await CinemaDatabase.instance.close();
+        final Database emptyDatabase = await databaseFactoryFfiNoIsolate
+            .openDatabase(inMemoryDatabasePath);
+        CinemaDatabase.instance.setDatabase(emptyDatabase);
+        await tester.pumpWidget(MaterialApp(home: BasketView()));
+        await tester.pumpAndSettle();
+      });
+      await tester.pump();
+
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.textContaining('Could not load bookings:'), findsOneWidget);
+      expect(find.textContaining('no such table: bookings'), findsOneWidget);
+      expect(find.text('No bookings yet'), findsNothing);
+      expect(find.text('PAST BOOKINGS'), findsOneWidget);
     });
   });
 }

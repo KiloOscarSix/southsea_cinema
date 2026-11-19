@@ -57,6 +57,23 @@ These tests use in-memory SQLite databases and do not require an Android emulato
 
 To measure test coverage, run `flutter test --coverage`. The report is written to `coverage/lcov.info`.
 
+### Coverage
+
+|                | Lines covered | Coverage |
+| -------------- | ------------- | -------- |
+| Starting point | 575 / 606     | 94.9%    |
+| Final          | 606 / 606     | 100%     |
+
+The missing lines were the first launch that opens the database file and adds the three past bookings, the error messages when films or past bookings fail to load, the drawer's close button, the narrow-screen booking layout and `main()`. `lib/constants.dart` holds only `const` values, so it has no lines to run and is not in the report.
+
+Coverage only shows that a line ran, so the tests were also checked by breaking the app on purpose, one change at a time. Each change below made at least one test fail:
+
+- Calculations: a line total using `+` instead of `*`, ticket and price totals, and price formatting
+- Database queries: the booking order, the next booking number, the items loaded for each booking, foreign keys and the seeded bookings
+- Messages: the booking confirmation, empty basket, no bookings, and load and save errors
+- User interface: the narrow and wide layouts, the drawer routes and close button, the ticket limit and the default theme
+- Saved settings: the dark mode default and saving the setting
+
 ## Project structure
 
 - `lib/main.dart` sets up the app, its routes and the light and dark themes.

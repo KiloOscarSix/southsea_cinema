@@ -6,6 +6,7 @@ import 'package:shared_preferences_platform_interface/shared_preferences_async_p
 import 'package:southsea_cinema/constants.dart';
 import 'package:southsea_cinema/database/cinema_db.dart';
 import 'package:southsea_cinema/main.dart';
+import 'package:southsea_cinema/main.dart' as app;
 import 'package:southsea_cinema/repositories/basket_repository.dart';
 import 'package:southsea_cinema/views/home_view.dart';
 import 'package:southsea_cinema/views/movie_listing.dart';
@@ -141,6 +142,8 @@ void main() {
         'starts in dark mode, switches to light mode in settings and remembers it',
         (WidgetTester tester) async {
       await tester.pumpWidget(const SouthseaCinemaApp());
+      expect(tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
+          ThemeMode.dark);
       await tester.pumpAndSettle();
       expect(tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
           ThemeMode.dark);
@@ -179,6 +182,20 @@ void main() {
 
       expect(tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
           ThemeMode.light);
+    });
+
+    testWidgets('main runs the app on the home page in dark mode',
+        (WidgetTester tester) async {
+      // Resets the frame clock left by earlier tests before runApp's warm-up frame
+      tester.binding.resetEpoch();
+      app.main();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SouthseaCinemaApp), findsOneWidget);
+      expect(find.byType(HomeView), findsOneWidget);
+      expect(find.text('DRACULA'), findsOneWidget);
+      expect(tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
+          ThemeMode.dark);
     });
   });
 }

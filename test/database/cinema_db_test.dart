@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:southsea_cinema/database/cinema_db.dart';
 import 'package:southsea_cinema/models/booking.dart';
@@ -196,5 +198,46 @@ void main() {
     await database.close();
 
     expect(first.isOpen, isFalse);
+  });
+
+  test('opens the app database file once and seeds the three past bookings',
+      () async {
+    final CinemaDatabase database = CinemaDatabase.instance;
+    await database.close();
+    final Directory dir = Directory.systemTemp.createTempSync('cinema_db_');
+    databaseFactory = databaseFactoryFfiNoIsolate;
+    await databaseFactory.setDatabasesPath(dir.path);
+    addTearDown(() => dir.deleteSync(recursive: true));
+
+    final Database db = await database.database;
+    final List<Booking> seeded = await database.getAllBookings();
+
+    expect(db.path, endsWith('cinema_data.db'));
+    expect(identical(await database.database, db), isTrue);
+    expect(await db.getVersion(), CinemaDatabase.databaseVersion);
+    expect(seeded.length, 3);
+    expect(seeded[0].bookingNumber, 1003);
+    expect(seeded[0].summary, '2 x The Phantom of the Opera');
+    expect(seeded[0].total, 15.00);
+    expect(seeded[0].date, '18/04/2026 20:15');
+    expect(seeded[1].bookingNumber, 1002);
+    expect(seeded[1].summary, '1 x Dracula');
+    expect(seeded[1].total, 6.00);
+    expect(seeded[1].date, '02/03/2026 18:10');
+    expect(seeded[2].bookingNumber, 1001);
+    expect(seeded[2].summary, '3 x Dracula, 1 x The Phantom of the Opera');
+    expect(seeded[2].total, 25.50);
+    expect(seeded[2].date, '11/01/2026 19:02');
+    expect(seeded[0].items, isEmpty);
+    expect(await database.getNextBookingNumber(), 1004);
+    expect(await db.rawQuery('PRAGMA foreign_keys'), <Map<String, Object?>>[
+      <String, Object?>{'foreign_keys': 1},
+    ]);
+
+    await database.close();
+    final List<Booking> reopened = await database.getAllBookings();
+
+    expect(reopened.length, 3);
+    await database.close();
   });
 }
